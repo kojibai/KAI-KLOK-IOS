@@ -71,7 +71,7 @@ Remembered & Authored by [**Kai Rex Klock**](https://bjklock.com), this system i
 
 ## 🕰️ License
 
-© 2025 Kai Rex Klock.
+© 2025 BJ K℞ Klock, Φ.K.
 **Not open source. Sacred code. Protected.**
 
 For licensed use, partnership, or integration: [contact here](https://kojib.com/contact).
