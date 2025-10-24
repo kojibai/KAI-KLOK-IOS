@@ -1,0 +1,990 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EBB7D54E2E733F69002F6CCD /* KaiKlok Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = EBB7D54D2E733F69002F6CCD /* KaiKlok Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EBB7D5382E733F69002F6CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EBB7D5222E733F67002F6CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EBB7D5292E733F68002F6CCD;
+			remoteInfo = KaiKlok;
+		};
+		EBB7D5422E733F69002F6CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EBB7D5222E733F67002F6CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EBB7D5292E733F68002F6CCD;
+			remoteInfo = KaiKlok;
+		};
+		EBB7D54F2E733F69002F6CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EBB7D5222E733F67002F6CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EBB7D54C2E733F69002F6CCD;
+			remoteInfo = "KaiKlok Watch App";
+		};
+		EBB7D55D2E733F69002F6CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EBB7D5222E733F67002F6CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EBB7D54C2E733F69002F6CCD;
+			remoteInfo = "KaiKlok Watch App";
+		};
+		EBB7D5672E733F69002F6CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EBB7D5222E733F67002F6CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EBB7D54C2E733F69002F6CCD;
+			remoteInfo = "KaiKlok Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EBB7D5732E733F69002F6CCD /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				EBB7D54E2E733F69002F6CCD /* KaiKlok Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		EBB7D52A2E733F68002F6CCD /* KaiKlok.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KaiKlok.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBB7D5372E733F69002F6CCD /* KaiKlokTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KaiKlokTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBB7D5412E733F69002F6CCD /* KaiKlokUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KaiKlokUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBB7D54D2E733F69002F6CCD /* KaiKlok Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KaiKlok Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBB7D55C2E733F69002F6CCD /* KaiKlok Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KaiKlok Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBB7D5662E733F69002F6CCD /* KaiKlok Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KaiKlok Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		EBFE54252EA196FC00C2529D /* Exceptions for "KaiKlok" folder in "KaiKlok" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = EBB7D5292E733F68002F6CCD /* KaiKlok */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		EBB7D52C2E733F68002F6CCD /* KaiKlok */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				EBFE54252EA196FC00C2529D /* Exceptions for "KaiKlok" folder in "KaiKlok" target */,
+			);
+			path = KaiKlok;
+			sourceTree = "<group>";
+		};
+		EBB7D53A2E733F69002F6CCD /* KaiKlokTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KaiKlokTests;
+			sourceTree = "<group>";
+		};
+		EBB7D5442E733F69002F6CCD /* KaiKlokUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KaiKlokUITests;
+			sourceTree = "<group>";
+		};
+		EBB7D5512E733F69002F6CCD /* KaiKlok Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "KaiKlok Watch App";
+			sourceTree = "<group>";
+		};
+		EBB7D55F2E733F69002F6CCD /* KaiKlok Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "KaiKlok Watch AppTests";
+			sourceTree = "<group>";
+		};
+		EBB7D5692E733F69002F6CCD /* KaiKlok Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "KaiKlok Watch AppUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EBB7D5272E733F68002F6CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5342E733F69002F6CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D53E2E733F69002F6CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D54A2E733F69002F6CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5592E733F69002F6CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5632E733F69002F6CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EBB7D5212E733F67002F6CCD = {
+			isa = PBXGroup;
+			children = (
+				EBB7D52C2E733F68002F6CCD /* KaiKlok */,
+				EBB7D53A2E733F69002F6CCD /* KaiKlokTests */,
+				EBB7D5442E733F69002F6CCD /* KaiKlokUITests */,
+				EBB7D5512E733F69002F6CCD /* KaiKlok Watch App */,
+				EBB7D55F2E733F69002F6CCD /* KaiKlok Watch AppTests */,
+				EBB7D5692E733F69002F6CCD /* KaiKlok Watch AppUITests */,
+				EBB7D52B2E733F68002F6CCD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EBB7D52B2E733F68002F6CCD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EBB7D52A2E733F68002F6CCD /* KaiKlok.app */,
+				EBB7D5372E733F69002F6CCD /* KaiKlokTests.xctest */,
+				EBB7D5412E733F69002F6CCD /* KaiKlokUITests.xctest */,
+				EBB7D54D2E733F69002F6CCD /* KaiKlok Watch App.app */,
+				EBB7D55C2E733F69002F6CCD /* KaiKlok Watch AppTests.xctest */,
+				EBB7D5662E733F69002F6CCD /* KaiKlok Watch AppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EBB7D5292E733F68002F6CCD /* KaiKlok */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBB7D5742E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok" */;
+			buildPhases = (
+				EBB7D5262E733F68002F6CCD /* Sources */,
+				EBB7D5272E733F68002F6CCD /* Frameworks */,
+				EBB7D5282E733F68002F6CCD /* Resources */,
+				EBB7D5732E733F69002F6CCD /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EBB7D5502E733F69002F6CCD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EBB7D52C2E733F68002F6CCD /* KaiKlok */,
+			);
+			name = KaiKlok;
+			packageProductDependencies = (
+			);
+			productName = KaiKlok;
+			productReference = EBB7D52A2E733F68002F6CCD /* KaiKlok.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EBB7D5362E733F69002F6CCD /* KaiKlokTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBB7D5772E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlokTests" */;
+			buildPhases = (
+				EBB7D5332E733F69002F6CCD /* Sources */,
+				EBB7D5342E733F69002F6CCD /* Frameworks */,
+				EBB7D5352E733F69002F6CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EBB7D5392E733F69002F6CCD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EBB7D53A2E733F69002F6CCD /* KaiKlokTests */,
+			);
+			name = KaiKlokTests;
+			packageProductDependencies = (
+			);
+			productName = KaiKlokTests;
+			productReference = EBB7D5372E733F69002F6CCD /* KaiKlokTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EBB7D5402E733F69002F6CCD /* KaiKlokUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBB7D57A2E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlokUITests" */;
+			buildPhases = (
+				EBB7D53D2E733F69002F6CCD /* Sources */,
+				EBB7D53E2E733F69002F6CCD /* Frameworks */,
+				EBB7D53F2E733F69002F6CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EBB7D5432E733F69002F6CCD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EBB7D5442E733F69002F6CCD /* KaiKlokUITests */,
+			);
+			name = KaiKlokUITests;
+			packageProductDependencies = (
+			);
+			productName = KaiKlokUITests;
+			productReference = EBB7D5412E733F69002F6CCD /* KaiKlokUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		EBB7D54C2E733F69002F6CCD /* KaiKlok Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBB7D5702E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok Watch App" */;
+			buildPhases = (
+				EBB7D5492E733F69002F6CCD /* Sources */,
+				EBB7D54A2E733F69002F6CCD /* Frameworks */,
+				EBB7D54B2E733F69002F6CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				EBB7D5512E733F69002F6CCD /* KaiKlok Watch App */,
+			);
+			name = "KaiKlok Watch App";
+			packageProductDependencies = (
+			);
+			productName = "KaiKlok Watch App";
+			productReference = EBB7D54D2E733F69002F6CCD /* KaiKlok Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EBB7D55B2E733F69002F6CCD /* KaiKlok Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBB7D57D2E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok Watch AppTests" */;
+			buildPhases = (
+				EBB7D5582E733F69002F6CCD /* Sources */,
+				EBB7D5592E733F69002F6CCD /* Frameworks */,
+				EBB7D55A2E733F69002F6CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EBB7D55E2E733F69002F6CCD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EBB7D55F2E733F69002F6CCD /* KaiKlok Watch AppTests */,
+			);
+			name = "KaiKlok Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "KaiKlok Watch AppTests";
+			productReference = EBB7D55C2E733F69002F6CCD /* KaiKlok Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		EBB7D5652E733F69002F6CCD /* KaiKlok Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBB7D5802E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok Watch AppUITests" */;
+			buildPhases = (
+				EBB7D5622E733F69002F6CCD /* Sources */,
+				EBB7D5632E733F69002F6CCD /* Frameworks */,
+				EBB7D5642E733F69002F6CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EBB7D5682E733F69002F6CCD /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EBB7D5692E733F69002F6CCD /* KaiKlok Watch AppUITests */,
+			);
+			name = "KaiKlok Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "KaiKlok Watch AppUITests";
+			productReference = EBB7D5662E733F69002F6CCD /* KaiKlok Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EBB7D5222E733F67002F6CCD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					EBB7D5292E733F68002F6CCD = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					EBB7D5362E733F69002F6CCD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = EBB7D5292E733F68002F6CCD;
+					};
+					EBB7D5402E733F69002F6CCD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = EBB7D5292E733F68002F6CCD;
+					};
+					EBB7D54C2E733F69002F6CCD = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					EBB7D55B2E733F69002F6CCD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = EBB7D54C2E733F69002F6CCD;
+					};
+					EBB7D5652E733F69002F6CCD = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = EBB7D54C2E733F69002F6CCD;
+					};
+				};
+			};
+			buildConfigurationList = EBB7D5252E733F67002F6CCD /* Build configuration list for PBXProject "KaiKlok" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EBB7D5212E733F67002F6CCD;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EBB7D52B2E733F68002F6CCD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EBB7D5292E733F68002F6CCD /* KaiKlok */,
+				EBB7D5362E733F69002F6CCD /* KaiKlokTests */,
+				EBB7D5402E733F69002F6CCD /* KaiKlokUITests */,
+				EBB7D54C2E733F69002F6CCD /* KaiKlok Watch App */,
+				EBB7D55B2E733F69002F6CCD /* KaiKlok Watch AppTests */,
+				EBB7D5652E733F69002F6CCD /* KaiKlok Watch AppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EBB7D5282E733F68002F6CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5352E733F69002F6CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D53F2E733F69002F6CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D54B2E733F69002F6CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D55A2E733F69002F6CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5642E733F69002F6CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EBB7D5262E733F68002F6CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5332E733F69002F6CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D53D2E733F69002F6CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5492E733F69002F6CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5582E733F69002F6CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBB7D5622E733F69002F6CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EBB7D5392E733F69002F6CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EBB7D5292E733F68002F6CCD /* KaiKlok */;
+			targetProxy = EBB7D5382E733F69002F6CCD /* PBXContainerItemProxy */;
+		};
+		EBB7D5432E733F69002F6CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EBB7D5292E733F68002F6CCD /* KaiKlok */;
+			targetProxy = EBB7D5422E733F69002F6CCD /* PBXContainerItemProxy */;
+		};
+		EBB7D5502E733F69002F6CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EBB7D54C2E733F69002F6CCD /* KaiKlok Watch App */;
+			targetProxy = EBB7D54F2E733F69002F6CCD /* PBXContainerItemProxy */;
+		};
+		EBB7D55E2E733F69002F6CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EBB7D54C2E733F69002F6CCD /* KaiKlok Watch App */;
+			targetProxy = EBB7D55D2E733F69002F6CCD /* PBXContainerItemProxy */;
+		};
+		EBB7D5682E733F69002F6CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EBB7D54C2E733F69002F6CCD /* KaiKlok Watch App */;
+			targetProxy = EBB7D5672E733F69002F6CCD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		EBB7D56E2E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		EBB7D56F2E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		EBB7D5712E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_FILE[sdk=*]" = WatchAppInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = KaiKlok;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Kojib.KaiKlok;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlok.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		EBB7D5722E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = KaiKlok;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Kojib.KaiKlok;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlok.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Release;
+		};
+		EBB7D5752E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = KaiKlok/KaiKlok.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KaiKlok/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Kai Klok";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "KaiKlok uses the camera to scan Sigils (QR/barcodes) and verify Eternal-Klok stamps. No images or video are stored.\n";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.9;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlok;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EBB7D5762E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = KaiKlok/KaiKlok.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KaiKlok/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Kai Klok";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "KaiKlok uses the camera to scan Sigils (QR/barcodes) and verify Eternal-Klok stamps. No images or video are stored.\n";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.9;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlok;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EBB7D5782E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlokTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KaiKlok.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KaiKlok";
+			};
+			name = Debug;
+		};
+		EBB7D5792E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlokTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KaiKlok.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KaiKlok";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EBB7D57B2E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlokUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = KaiKlok;
+			};
+			name = Debug;
+		};
+		EBB7D57C2E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Kojib.KaiKlokUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = KaiKlok;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EBB7D57E2E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Kojib.KaiKlok-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KaiKlok Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KaiKlok Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		EBB7D57F2E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Kojib.KaiKlok-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KaiKlok Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KaiKlok Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Release;
+		};
+		EBB7D5812E733F69002F6CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Kojib.KaiKlok-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "KaiKlok Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		EBB7D5822E733F69002F6CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 22T5CGK3Z2;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Kojib.KaiKlok-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "KaiKlok Watch App";
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EBB7D5252E733F67002F6CCD /* Build configuration list for PBXProject "KaiKlok" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D56E2E733F69002F6CCD /* Debug */,
+				EBB7D56F2E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EBB7D5702E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D5712E733F69002F6CCD /* Debug */,
+				EBB7D5722E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EBB7D5742E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D5752E733F69002F6CCD /* Debug */,
+				EBB7D5762E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EBB7D5772E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlokTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D5782E733F69002F6CCD /* Debug */,
+				EBB7D5792E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EBB7D57A2E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlokUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D57B2E733F69002F6CCD /* Debug */,
+				EBB7D57C2E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EBB7D57D2E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D57E2E733F69002F6CCD /* Debug */,
+				EBB7D57F2E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EBB7D5802E733F69002F6CCD /* Build configuration list for PBXNativeTarget "KaiKlok Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB7D5812E733F69002F6CCD /* Debug */,
+				EBB7D5822E733F69002F6CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EBB7D5222E733F67002F6CCD /* Project object */;
+}
