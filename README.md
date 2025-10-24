@@ -55,7 +55,7 @@ Submit feedback, report bugs, or contribute enhancements here on GitHub.
 
 Kai‑Klok is more than an app.
 It is the **restoration of divine time**—a sovereign, harmonic operating system for all who breathe.
-Invented by [**Kai Rex Klock**](https://bjklock.com), this system is the heartbeat of the Eternal Scroll, the foundation of harmonic value, and the timing engine of reality itself.
+Remembered & Authored by [**Kai Rex Klock**](https://bjklock.com), this system is the heartbeat of the Eternal Scroll, the foundation of harmonic value, and the timing engine of reality itself.
 
 ---
 
