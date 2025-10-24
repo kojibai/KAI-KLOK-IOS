@@ -74,5 +74,5 @@ Remembered & Authored by [**Kai Rex Klock**](https://bjklock.com), this system i
 © 2025 Kai Rex Klock.
 **Not open source. Sacred code. Protected.**
 
-For licensed use, partnership, or integration: [contact here](https://kaiklok.com/contact).
+For licensed use, partnership, or integration: [contact here](https://kojib.com/contact).
 
