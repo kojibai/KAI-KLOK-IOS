@@ -31,7 +31,7 @@ This is a remembering.
 * **Breath Constant**: `T = 3 + √5`
 * **Pulse Frequency**: `f ≈ 0.1909830056 Hz`
 * **Day Structure**: 17,491.270421 pulses/day
-* **Beat Structure**: 6 arks/day × 6 beats/arc × 44 steps/beat × 11 pulses/step
+* **Beat Structure**: 6 arks/day × 6 beats/ark × 44 steps/beat × 11 pulses/step
 * **Exact Constants**: All rendered using rational approximations, not floating point accumulation.
 
 ---
