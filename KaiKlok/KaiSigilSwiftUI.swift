@@ -68,7 +68,7 @@ private enum HarmonicDay: String, CaseIterable, Codable, Hashable {
 }
 
 private enum KaiChakra: String, CaseIterable, Codable, Hashable {
-    case Root, Sacral, SolarPlexus = "Solar Plexus", Heart, Throat, ThirdEye = "Third Eye", Crown
+    case Root, Sacral, SolarPlexus = "Solar Plexus", Heart, Throat, ThirdEye = "Third Eye", Krown
 }
 
 private let ETERNAL_MONTH_NAMES: [String] = [
@@ -80,7 +80,7 @@ private func arcLabel(_ name: String) -> String { "\(name) Ark" }
 
 private let DAY_TO_CHAKRA: [HarmonicDay: KaiChakra] = [
     .Solhara: .Root, .Aquaris: .Sacral, .Flamora: .SolarPlexus,
-    .Verdari: .Heart, .Sonari: .Throat, .Kaelith: .Crown,
+    .Verdari: .Heart, .Sonari: .Throat, .Kaelith: .Krown,
 ]
 
 // Chakra visuals (polygon + hue)
@@ -89,7 +89,7 @@ private let CHAKRAS: [KaiChakra: ChakraSpec] = [
     .Root: .init(sides: 4,  hue:   0),   .Sacral: .init(sides: 6,  hue:  30),
     .SolarPlexus: .init(sides: 5, hue: 53), .Heart: .init(sides: 8, hue: 122),
     .Throat: .init(sides: 12, hue: 180), .ThirdEye: .init(sides: 14, hue: 222),
-    .Crown: .init(sides: 16, hue: 258),
+    .Krown: .init(sides: 16, hue: 258),
 ]
 
 // Ark color map (for Eternal bar) — kept for reference/legacy use
@@ -118,7 +118,7 @@ private let CHAKRA_ETERNAL_COLORS: [KaiChakra: Color] = [
     .Heart:       Color(hex: 0x00c853), // green
     .Throat:      Color(hex: 0x00b0ff), // blue
     .ThirdEye:    Color(hue: 222/360.0, saturation: 1.0, brightness: 0.92), // indigo (derived)
-    .Crown:       Color(hex: 0xc186ff), // violet
+    .Krown:       Color(hex: 0xc186ff), // violet
 ]
 
 // Normalize Ark labels (handles “Reflekt/Purifikation/Ignite/ArK”, etc.)
@@ -129,8 +129,8 @@ private func normalizedArkName(_ raw: String) -> String {
     case "ignition ark", "ignite ark", "ignite":                 return "Ignition Ark"
     case "integration ark", "integrate ark", "integrate":        return "Integration Ark"
     case "harmonization ark", "harmonize ark", "harmonize":      return "Harmonization Ark"
-    case "reflection ark", "reflekt ark", "reflekt":             return "Reflection Ark"
-    case "purification ark", "purifikation ark", "purifikation": return "Purification Ark"
+    case "reflektion ark", "reflekt ark", "reflekt":             return "Reflektion Ark"
+    case "purification ark", "purifikation ark", "purifikation": return "Purifikation Ark"
     case "dream ark", "dream":                                   return "Dream Ark"
     default:
         // If it already contains 'Ark' with some name, keep it; else append.
@@ -144,9 +144,9 @@ private func chakraForArk(_ arkName: String) -> KaiChakra {
     case "Ignition Ark":       return .Root
     case "Integration Ark":    return .Sacral
     case "Harmonization Ark":  return .SolarPlexus
-    case "Reflection Ark":     return .Heart
-    case "Purification Ark":   return .Throat
-    case "Dream Ark":          return .Crown
+    case "Reflektion Ark":     return .Heart
+    case "Purifikation Ark":   return .Throat
+    case "Dream Ark":          return .Krown
     default:                   return .Root
     }
 }
@@ -331,7 +331,7 @@ private func computeLocalKai(_ date: Date) -> LocalKai {
     let weekIndex = (dayOfMonth - 1) / DAYS_PER_WEEK
     let weekName = [
         "Awakening Flame","Flowing Heart","Radiant Will",
-        "Harmonic Voice","Inner Mirror","Dreamfire Memory","Krowned Light",
+        "Harmonik Voh","Inner Mirror","Dreamfire Memory","Krowned Light",
     ][weekIndex]
 
     let chakraStepString = "\(beat):\(String(format: "%02d", step))"
@@ -696,8 +696,8 @@ private func buildSVG(size: CGFloat, params: KaiSigilRenderParams, klock: Eterna
     // NO QR, NO ISO timestamps; Eternal payload embedded verbatim (CDATA)
     return """
     <?xml version="1.0" encoding="UTF-8"?>
-    <svg xmlns="http://www.w3.org/2000/svg" width="\(w)" height="\(w)" viewBox="0 0 \(w) \(w)" version="1.1" aria-label="Kairos HarmoniK Sigil · Pulse \(params.pulse)">
-      <title>Kairos HarmoniK Sigil • Pulse \(params.pulse)</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="\(w)" height="\(w)" viewBox="0 0 \(w) \(w)" version="1.1" aria-label="Kairos Harmonik Sigil · Pulse \(params.pulse)">
+      <title>Kairos Harmonik Sigil • Pulse \(params.pulse)</title>
       <desc>Eternal Seal • \(klock.eternalSeal)</desc>
       <metadata><![CDATA[\(klockJSON)]]></metadata>
       <rect x="0" y="0" width="100%" height="100%" fill="#060A10"/>

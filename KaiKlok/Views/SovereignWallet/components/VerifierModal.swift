@@ -3,12 +3,24 @@
 //  KaiKlok
 //
 //  TSX-parity Verifier/Stamper (mobile-first, full-screen)
-//  v14.4 — Sovereign hardening+++ (ECDSA + optional ZK bind)
-//  - Fix: iOS 18 deprecations for String(contentsOf:)
-//  - Fix: 'never mutated' warnings (mini, types)
+//  v15.1 — Kairos-only UI (no Chronos timers; pulse injected by KaiPulseSource)
+//  - Pulse input is *only* via KaiPulseSource publisher
+//  - All stamps/hashes derive from Kai pulse (μpulse-safe if desired)
+//  - Panel open-after-upload guaranteed (no race with vm.meta)
+//  - More tolerant <metadata> extraction (CDATA or plain)
+//  - Default lands on Data tab showing raw JSON
 //
-//  NOTE: All models (WVSigil* types, etc.) live in sigilmodels now.
-//  This file ONLY contains UI + ViewModel and local, namespaced helpers.
+//  Canon (per KKS-1.0):
+//  - Breath T = 3 + √5 s (f = 1/(3+√5))
+//  - Grid: 11 pulses/step, 44 steps/beat, 36 beats/day (indexing only)
+//  - Daily closure (no drift): N_day = 17,491.270421 pulses/day = 17,491,270,421 μpulses/day
+//  - Engine: track integer pulses (or μpulse, denom 10^6); ties-to-even for display only
+//  - Genesis (bridge only): 1715323541888 ms (2024-05-10 06:45:41.888 UTC @ Sun)
+//  - Periodicity: Δ_beat = 67,270,421 / 484,000,000 ; Δ_step rem = 1,270,421 / 11,000,000
+//
+//  NOTE: WVSigil* models live in SovereignWallet/Models (same target).
+//  Drive pulse from your Kai engine:
+//     KaiPulseBus.shared.update(pulse: currentKaiPulse)
 //
 
 import SwiftUI
@@ -17,17 +29,71 @@ import CryptoKit
 import Foundation
 import WebKit
 import UIKit
+import Combine
+import Security
+
+// MARK: - Kai Pulse Source (no Chronos timers anywhere)
+
+public protocol KaiPulseSource {
+    /// Current Kai pulse (integer grid; use μpulse externally if you prefer and quantize here)
+    var currentPulse: Int { get }
+    /// Emits a new value on every Kai pulse tick (or μpulse if you choose to stream faster)
+    var pulsePublisher: AnyPublisher<Int, Never> { get }
+}
+
+/// Bus driven by your Kai-Klok engine (server-first or local deterministic engine).
+/// Absolutely no timers inside this file — you are responsible for calling `update(pulse:)`.
+public final class KaiPulseBus: KaiPulseSource {
+    public static let shared = KaiPulseBus()
+    private let subject = CurrentValueSubject<Int, Never>(0)
+    public var currentPulse: Int { subject.value }
+    public var pulsePublisher: AnyPublisher<Int, Never> { subject.eraseToAnyPublisher() }
+    private init() {}
+    public func update(pulse: Int) { subject.send(pulse) }
+}
+
+// MARK: - Chronos→Kairos bridge (PURE math; no Date usage here)
+
+public enum KaiChronosBridge {
+    public static let GENESIS_MS: Int64 = 1_715_323_541_888 // 2024-05-10 06:45:41.888Z
+    private static let MICRO_PULSES_PER_DAY: Int64 = 17_491_270_421
+    private static let MS_PER_DAY: Int64 = 86_400_000
+    private static let MICRO_PER_PULSE: Int64 = 1_000_000
+
+    /// Floor division (handles negatives like mathematical floor)
+    @inline(__always)
+    private static func floorDiv(_ a: Int64, _ b: Int64) -> Int64 {
+        var q = a / b
+        let r = a % b
+        if r != 0 && ((r > 0) != (b > 0)) { q -= 1 }
+        return q
+    }
+    /// Floor div with remainder >= 0
+    @inline(__always)
+    private static func floorDivMod(_ a: Int64, _ b: Int64) -> (q: Int64, r: Int64) {
+        var q = a / b
+        var r = a % b
+        if r != 0 && ((r > 0) != (b > 0)) { q -= 1; r += b }
+        return (q, r)
+    }
+
+    /// Compute Kai pulse from a Unix-epoch millisecond count (explicitly provided).
+    public static func pulseFromUnixMillis(_ unixMs: Int64,
+                                           epochMs: Int64 = GENESIS_MS) -> Int {
+        let deltaMs = unixMs - epochMs
+        let (days, remMs) = floorDivMod(deltaMs, MS_PER_DAY)       // remMs >= 0
+        let dayMicro = days &* MICRO_PULSES_PER_DAY                // wide range safety
+        let remMicro = (remMs &* MICRO_PULSES_PER_DAY) / MS_PER_DAY
+        let totalMicro = dayMicro &+ remMicro
+        let pulses = floorDiv(totalMicro, MICRO_PER_PULSE)
+        return Int(pulses)
+    }
+}
 
 // MARK: - Local, namespaced helpers (NO global extensions or shared names)
 
-private func wvKaiPulseNow() -> Int {
-    Int(Date().timeIntervalSince1970.rounded())
-}
-
-private func wvSHA256Hex(_ s: String) -> String {
-    wvSHA256Hex(Data(s.utf8))
-}
-private func wvSHA256Hex(_ data: Data) -> String {
+@inline(__always) private func wvSHA256Hex(_ s: String) -> String { wvSHA256Hex(Data(s.utf8)) }
+@inline(__always) private func wvSHA256Hex(_ data: Data) -> String {
     let digest = SHA256.hash(data: data)
     return digest.map { String(format: "%02x", $0) }.joined()
 }
@@ -48,22 +114,20 @@ private func wvStableStringify(_ any: Any) -> String {
     func encode(_ v: Any) -> String {
         if JSONSerialization.isValidJSONObject(v),
            let d = try? JSONSerialization.data(withJSONObject: v, options: []),
-           let s = String(data: d, encoding: .utf8) {
-            return s
-        }
+           let s = String(data: d, encoding: .utf8) { return s }
         return "\"\""
     }
     return encode(norm(any))
 }
 
 // base64url
-private func wvBase64urlJson<T: Encodable>(_ val: T) -> String {
+@inline(__always) private func wvBase64urlJson<T: Encodable>(_ val: T) -> String {
     let enc = JSONEncoder()
     enc.outputFormatting = []
     let data = (try? enc.encode(val)) ?? Data()
     return wvBase64url(data)
 }
-private func wvBase64url(_ data: Data) -> String {
+@inline(__always) private func wvBase64url(_ data: Data) -> String {
     data.base64EncodedString()
         .replacingOccurrences(of: "+", with: "-")
         .replacingOccurrences(of: "/", with: "_")
@@ -90,13 +154,13 @@ private func wvDataToHex(_ data: Data) -> String {
     data.map { String(format: "%02x", $0) }.joined()
 }
 
-// Compute Kai content signature (best-effort, parity with TSX)
+// Compute Kai content signature (parity with TSX)
 private func wvComputeKaiSignature(_ m: WVSigilMetadata) -> String? {
     guard let p = m.pulse, let b = m.beat, let s = m.stepIndex, let day = m.chakraDay else { return nil }
     return wvSHA256Hex("\(p)|\(b)|\(s)|\(day)")
 }
 
-// Derive Φ from Σ (placeholder; keep parity of I/O)
+// Derive Φ from Σ (I/O parity)
 private func wvDerivePhiKeyFromSig(_ sig: String) -> String {
     "phi_" + wvSHA256Hex(sig).prefix(40)
 }
@@ -111,9 +175,9 @@ private func wvBuildMerkleRoot(_ leavesHex: [String]) -> String {
         while i < layer.count {
             let L = layer[i]
             let R = i + 1 < layer.count ? layer[i+1] : layer[i]
-            var cat = Data()
-            cat.append(L); cat.append(R)
-            next.append(wvHexToData(wvSHA256Hex(cat)))
+            var cat = Data(); cat.append(L); cat.append(R)
+            let hex = wvSHA256Hex(cat)
+            next.append(wvHexToData(hex))
             i += 2
         }
         layer = next
@@ -123,6 +187,7 @@ private func wvBuildMerkleRoot(_ leavesHex: [String]) -> String {
 
 // Proof generation (for latest leaf) + verification
 private func wvMerkleProof(_ leavesHex: [String], index: Int) -> [String] {
+    guard !leavesHex.isEmpty, index >= 0, index < leavesHex.count else { return [] }
     var idx = index
     var layer = leavesHex.map { wvHexToData($0) }
     var proof: [Data] = []
@@ -132,11 +197,15 @@ private func wvMerkleProof(_ leavesHex: [String], index: Int) -> [String] {
         while i < layer.count {
             let L = layer[i]
             let R = i + 1 < layer.count ? layer[i+1] : layer[i]
-            if i == idx ^ 1 || (i == idx && i+1 >= layer.count) {
-                proof.append(i == idx ? R : L)
+            // append sibling of the node that matches idx in this pair
+            if idx == i {
+                proof.append(R)
+            } else if idx == i + 1 {
+                proof.append(L)
             }
             var cat = Data(); cat.append(L); cat.append(R)
-            next.append(wvHexToData(wvSHA256Hex(cat)))
+            let hex = wvSHA256Hex(cat)
+            next.append(wvHexToData(hex))
             i += 2
         }
         idx /= 2
@@ -155,7 +224,8 @@ private func wvVerifyProof(rootHex: String, leafHex: String, index: Int, proofHe
         } else {
             cat.append(sib); cat.append(hash)
         }
-        hash = wvHexToData(wvSHA256Hex(cat))
+        let hex = wvSHA256Hex(cat)
+        hash = wvHexToData(hex)
         idx /= 2
     }
     return wvDataToHex(hash).lowercased() == rootHex.lowercased()
@@ -197,7 +267,7 @@ private func wvHashTransferFull(_ t: WVSigilTransfer) -> String {
 // Nonce
 private func wvGenNonce() -> String { UUID().uuidString.replacingOccurrences(of: "-", with: "") }
 
-// Embed JSON into <metadata><![CDATA[...]]></metadata>
+// Embed JSON into <metadata>...</metadata> (handles existing or appends new)
 private func wvEmbedMetadata(svgString: String, meta: WVSigilMetadata) -> String {
     let enc = JSONEncoder()
     enc.outputFormatting = [.sortedKeys]
@@ -207,26 +277,158 @@ private func wvEmbedMetadata(svgString: String, meta: WVSigilMetadata) -> String
         var s = svgString
         s.replaceSubrange(a.upperBound..<b.lowerBound, with: json)
         return s
-    } else {
-        let node = "<metadata><![CDATA[\(json)]]></metadata>"
-        return svgString.replacingOccurrences(of: "</svg>", with: "\(node)</svg>")
     }
+    if let a = svgString.range(of: "<metadata>"),
+       let b = svgString.range(of: "</metadata>"), a.upperBound <= b.lowerBound {
+        var s = svgString
+        s.replaceSubrange(a.upperBound..<b.lowerBound, with: json)
+        return s
+    }
+    let node = "<metadata><![CDATA[\(json)]]></metadata>"
+    return svgString.replacingOccurrences(of: "</svg>", with: "\(node)</svg>")
 }
 
-// Extract JSON back out
+// Extract JSON back out (tolerant: CDATA or plain)
 private func wvExtractMeta(fromSVG svg: String) -> (raw: String, meta: WVSigilMetadata, contextOk: Bool, typeOk: Bool)? {
-    guard let a = svg.range(of: "<metadata><![CDATA["),
-          let b = svg.range(of: "]]></metadata>") else { return nil }
-    let json = String(svg[a.upperBound..<b.lowerBound])
-    guard let data = json.data(using: .utf8) else { return nil }
-    let dec = JSONDecoder()
-    guard let m = try? dec.decode(WVSigilMetadata.self, from: data) else { return nil }
-    let ctxOK = (m.context ?? "").isEmpty || (m.context ?? "").lowercased().contains("sigil")
-    let typeOK = (m.type ?? "").isEmpty || (m.type ?? "").lowercased().contains("sigil")
-    return (json, m, ctxOK, typeOK)
+    if let a = svg.range(of: "<metadata><![CDATA["),
+       let b = svg.range(of: "]]></metadata>") {
+        let json = String(svg[a.upperBound..<b.lowerBound])
+        if let m = json.data(using: .utf8).flatMap({ try? JSONDecoder().decode(WVSigilMetadata.self, from: $0) }) {
+            let ctxOK = (m.context ?? "").isEmpty || (m.context ?? "").lowercased().contains("sigil")
+            let typeOK = (m.type ?? "").isEmpty || (m.type ?? "").lowercased().contains("sigil")
+            return (json, m, ctxOK, typeOK)
+        }
+    }
+    if let a = svg.range(of: "<metadata>"),
+       let b = svg.range(of: "</metadata>"), a.upperBound <= b.lowerBound {
+        let json = String(svg[a.upperBound..<b.lowerBound])
+        if let m = json.data(using: .utf8).flatMap({ try? JSONDecoder().decode(WVSigilMetadata.self, from: $0) }) {
+            let ctxOK = (m.context ?? "").isEmpty || (m.context ?? "").lowercased().contains("sigil")
+            let typeOK = (m.type ?? "").isEmpty || (m.type ?? "").lowercased().contains("sigil")
+            return (json, m, ctxOK, typeOK)
+        }
+    }
+    return nil
 }
 
-// MARK: - UI State (renamed to avoid any collision)
+// MARK: - v14 hardened signing (P-256/SPKI, base64url, stable JSON)
+
+private let WV_KEY_STORAGE = "kk.v14.key.der"
+
+private func wvKeychainSet(_ key: String, data: Data) {
+    let q: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: key,
+        kSecAttrAccount as String: "local",
+        kSecValueData as String: data
+    ]
+    SecItemDelete(q as CFDictionary)
+    _ = SecItemAdd(q as CFDictionary, nil)
+}
+private func wvKeychainGet(_ key: String) -> Data? {
+    let q: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: key,
+        kSecAttrAccount as String: "local",
+        kSecReturnData as String: kCFBooleanTrue as Any,
+        kSecMatchLimit as String: kSecMatchLimitOne
+    ]
+    var out: AnyObject?
+    let status = SecItemCopyMatching(q as CFDictionary, &out)
+    guard status == errSecSuccess else { return nil }
+    return out as? Data
+}
+
+private func wvLoadOrCreateKeypair() -> (priv: P256.Signing.PrivateKey, spkiB64u: String) {
+    if let der = wvKeychainGet(WV_KEY_STORAGE),
+       let priv = try? P256.Signing.PrivateKey(derRepresentation: der) {
+        let spki = wvBase64url(priv.publicKey.derRepresentation)
+        return (priv, spki)
+    }
+    let priv = P256.Signing.PrivateKey()
+    let der = priv.derRepresentation
+    wvKeychainSet(WV_KEY_STORAGE, data: der)
+    let spki = wvBase64url(priv.publicKey.derRepresentation)
+    return (priv, spki)
+}
+
+private func wvSignB64u(_ priv: P256.Signing.PrivateKey, _ message: Data) -> String {
+    let sig = try! priv.signature(for: message)
+    return wvBase64url(sig.rawRepresentation)
+}
+
+private func wvStableJsonData(_ any: Any) -> Data {
+    Data(wvStableStringify(any).utf8)
+}
+
+// v14 canonical messages (parity with TSX)
+private func wvBuildSendMsgV14(previousHeadRoot: String, senderKaiPulse: Int, senderPubKeySPKI: String, nonce: String, transferLeafHashSend: String) -> Data {
+    wvStableJsonData([
+        "previousHeadRoot": previousHeadRoot,
+        "senderKaiPulse": senderKaiPulse,
+        "senderPubKey": senderPubKeySPKI,
+        "nonce": nonce,
+        "transferLeafHashSend": transferLeafHashSend
+    ])
+}
+private func wvBuildRecvMsgV14(previousHeadRoot: String, senderSig: String, receiverKaiPulse: Int, receiverPubKeySPKI: String, transferLeafHashReceive: String) -> Data {
+    wvStableJsonData([
+        "previousHeadRoot": previousHeadRoot,
+        "senderSig": senderSig,
+        "receiverKaiPulse": receiverKaiPulse,
+        "receiverPubKey": receiverPubKeySPKI,
+        "transferLeafHashReceive": transferLeafHashReceive
+    ])
+}
+
+// Parent/child canonical + history token
+private func wvParentCanonical(_ m: WVSigilMetadata) -> String {
+    let parent = (m.canonicalHash?.lowercased())
+        ?? wvSHA256Hex("\(m.pulse ?? 0)|\(m.beat ?? 0)|\(m.stepIndex ?? 0)|\(m.chakraDay ?? "")").lowercased()
+    return parent
+}
+private func wvChildCanonical(parent: String, nonce: String, senderStamp: String, senderKaiPulse: Int, prevHead: String, leafSend: String) -> String {
+    let seed = wvStableStringify([
+        "parent": parent, "nonce": nonce, "senderStamp": senderStamp,
+        "senderKaiPulse": senderKaiPulse, "prevHead": prevHead, "leafSend": leafSend
+    ])
+    return wvSHA256Hex(seed).lowercased()
+}
+private func wvEncodeSigilHistory(_ txs: [WVSigilTransfer]) -> String {
+    var arr: [[String: Any]] = []
+    for t in txs {
+        var obj: [String: Any] = ["s": t.senderSignature, "p": t.senderKaiPulse]
+        if let r = t.receiverSignature { obj["r"] = r }
+        arr.append(obj)
+    }
+    guard let data = try? JSONSerialization.data(withJSONObject: arr, options: [] ) else { return "" }
+    return wvBase64url(data)
+}
+private func wvExpectedPrevHeadRootV14(_ m: WVSigilMetadata) -> String {
+    if let h = m.hardenedTransfers, let last = h.last, !last.previousHeadRoot.isEmpty { return last.previousHeadRoot }
+    return (m.transfersWindowRootV14 ?? m.transfersWindowRoot) ?? ""
+}
+
+// MARK: - Claim/expiry (match TSX childExpiry.ts semantics where applicable)
+
+private let PULSES_PER_STEP = 11
+private let CLAIM_STEPS = 11
+private let CLAIM_PULSES = PULSES_PER_STEP * CLAIM_STEPS
+
+/// Parent-open expiry: senderKaiPulse + 121 pulses
+private func wvParentOpenExpiry(_ m: WVSigilMetadata, nowPulse: Int) -> (expired: Bool, expireAt: Int?) {
+    guard let last = m.transfers?.last, last.receiverSignature == nil else { return (false, nil) }
+    let start = last.senderKaiPulse
+    return (nowPulse >= start + CLAIM_PULSES, start + CLAIM_PULSES)
+}
+
+/// Child lock info (conservative)
+private func wvChildLockInfo(_ m: WVSigilMetadata, nowPulse: Int) -> (used: Bool, expired: Bool, expireAt: Int?) {
+    let used = m.sendLock?.used ?? false
+    return (used, false, nil)
+}
+
+// MARK: - UI State
 
 enum WVVerifierUiState: String {
     case idle, invalid, structMismatch, sigMismatch, notOwner, unsigned, readySend, readyReceive, complete, verified
@@ -245,6 +447,7 @@ private func wvDeriveState(contextOk: Bool, typeOk: Bool, hasCore: Bool, content
 
 // MARK: - ViewModel
 
+@MainActor
 final class VerifierVM: ObservableObject {
     // Inputs
     @Published var svgURL: URL?
@@ -268,8 +471,8 @@ final class VerifierVM: ObservableObject {
     // Errors
     @Published var error: String?
 
-    // Tab
-    @Published var tab: String = "summary"
+    // Tab (summary | lineage | data)
+    @Published var tab: String = "data" // default lands on raw data
 
     // Attachments
     @Published var payload: WVSigilPayload?
@@ -283,32 +486,48 @@ final class VerifierVM: ObservableObject {
     @Published var explorerOpen = false
     @Published var valuationOpen = false
 
-    // Pulse ticker
-    @Published var pulseNow: Int = wvKaiPulseNow()
-    private var timer: Timer?
+    // Pulse (Kai only)
+    @Published var pulseNow: Int
+    private let pulseSource: KaiPulseSource
+    private var pulseCancellable: AnyCancellable?
 
-    func startPulse() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.pulseNow = wvKaiPulseNow()
-        }
+    init(pulseSource: KaiPulseSource = KaiPulseBus.shared) {
+        self.pulseSource = pulseSource
+        self.pulseNow = pulseSource.currentPulse
+        bindPulse()
     }
-    func stopPulse() { timer?.invalidate() ; timer = nil }
 
-    // Handle imported SVG
+    func bindPulse() {
+        pulseCancellable?.cancel()
+        pulseCancellable = pulseSource.pulsePublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] p in
+                guard let self else { return }
+                self.pulseNow = p
+                if let svgURL = self.svgURL,
+                   let svgString = try? String(contentsOf: svgURL, encoding: .utf8) {
+                    self.refreshLiveSig(svgData: svgString, pulse: p)
+                }
+            }
+    }
+
+    // Handle imported SVG (synchronous; safe for immediate panel open)
     func handle(svgData: String, blobURL: URL) {
-        error = nil; uiState = .idle; tab = "summary"; payload = nil
-
+        error = nil; uiState = .idle; payload = nil
         guard let (raw, meta0, ctxOK, typeOK) = wvExtractMeta(fromSVG: svgData) else {
-            self.error = "No <metadata><![CDATA[...]]> JSON found."
+            self.error = "No <metadata> JSON found in SVG."
+            self.svgURL = blobURL
+            self.meta = nil
+            self.rawMeta = nil
+            self.tab = "data"
             return
         }
         rawMeta = raw
         svgURL = blobURL
 
         var m = meta0
-        // defaults
-        if m.segmentSize == nil { m.segmentSize = 24 } // SEGMENT_SIZE
+        // Defaults
+        if m.segmentSize == nil { m.segmentSize = 24 }
         if m.cumulativeTransfers == nil {
             let segCount = (m.segments ?? []).reduce(0) { $0 + ($1.count) }
             m.cumulativeTransfers = segCount + (m.transfers?.count ?? 0)
@@ -318,19 +537,8 @@ final class VerifierVM: ObservableObject {
             m.segmentsMerkleRoot = wvBuildMerkleRoot(roots)
         }
 
-        // live centre-pixel sig substitute: hash(svg bytes + pulseNow) + RGB seed
-        do {
-            let svgBytes = Data(svgData.utf8)
-            let now = wvKaiPulseNow()
-            let timeData = withUnsafeBytes(of: now.bigEndian) { Data($0) }
-            var combined = Data()
-            combined.append(svgBytes)
-            combined.append(timeData)
-            let h = wvSHA256Hex(combined)
-            liveSig = h
-            let bytes = Array(wvHexToData(h).prefix(3))
-            rgbSeed = bytes.map { Int($0) }
-        }
+        // live centre-pixel sig substitute: hash(svg bytes + Kai pulse) + RGB seed
+        refreshLiveSig(svgData: svgData, pulse: pulseNow)
 
         // Expected Σ and Φ
         if let sig = wvComputeKaiSignature(m) {
@@ -347,8 +555,7 @@ final class VerifierVM: ObservableObject {
             phiKeyExpected = String(phi)
             phiKeyMatches = (m.userPhiKey != nil) ? (m.userPhiKey == phi) : nil
         } else {
-            phiKeyExpected = nil
-            phiKeyMatches = nil
+            phiKeyExpected = nil; phiKeyMatches = nil
         }
 
         // Ownership (legacy heuristic)
@@ -361,7 +568,6 @@ final class VerifierVM: ObservableObject {
         let lastOpen = (m.transfers?.last?.receiverSignature == nil)
         let isUnsigned = (m.kaiSignature == nil)
 
-        // Head window compute + proof
         let m2 = refreshHeadWindow(m)
         meta = m2
         rawMeta = encodeRaw(m2)
@@ -370,9 +576,23 @@ final class VerifierVM: ObservableObject {
                                  contentSigMatches: contentSigMatches, isOwner: isOwner,
                                  hasTransfers: hasTransfers, lastOpen: lastOpen, isUnsigned: isUnsigned)
 
-        let verified = (next != .invalid && next != .structMismatch && next != .sigMismatch && next != .notOwner && !lastOpen && ((contentSigMatches ?? true) || isUnsigned || m.kaiSignature != nil))
+        // Strengthened verification: must not be open; and Σ ok (or unsigned)
+        let verified = (next != .invalid && next != .structMismatch && next != .sigMismatch && next != .notOwner
+                        && !lastOpen
+                        && ((contentSigMatches ?? true) || isUnsigned || m.kaiSignature != nil))
 
         uiState = verified ? .verified : next
+        tab = "data"
+    }
+
+    private func refreshLiveSig(svgData: String, pulse: Int) {
+        let svgBytes = Data(svgData.utf8)
+        var timeData = withUnsafeBytes(of: pulse.bigEndian) { Data($0) }
+        var combined = Data(); combined.append(svgBytes); combined.append(timeData)
+        let h = wvSHA256Hex(combined)
+        liveSig = h
+        let bytes = Array(wvHexToData(h).prefix(3))
+        rgbSeed = bytes.map { Int($0) }
     }
 
     private func encodeRaw(_ m: WVSigilMetadata?) -> String? {
@@ -446,12 +666,11 @@ final class VerifierVM: ObservableObject {
         if m.transferNonce == nil { m.transferNonce = wvGenNonce() }
         if m.pulse == nil { m.pulse = pulseNow }
 
-        // silently anchor our creatorPublicKey if absent (parity)
+        // silently anchor creatorPublicKey if absent (will be overwritten by real SPKI on send)
         if m.creatorPublicKey == nil {
             m.creatorPublicKey = "spki_" + UUID().uuidString.replacingOccurrences(of: "-", with: "")
         }
 
-        // iOS 18-safe string load
         let svg = (try? String(contentsOf: url, encoding: .utf8))
             ?? ((try? Data(contentsOf: url)).flatMap { String(data: $0, encoding: .utf8) })
             ?? svgString
@@ -464,6 +683,7 @@ final class VerifierVM: ObservableObject {
         rawMeta = encodeRaw(m2)
         uiState = (uiState == .unsigned) ? .readySend : uiState
         error = nil
+        tab = "data"
     }
 
     func attach(_ fileURL: URL) {
@@ -480,6 +700,7 @@ final class VerifierVM: ObservableObject {
 
         payload = WVSigilPayload(name: name, mime: mime, size: data.count, encoded: data.base64EncodedString())
         error = nil
+        tab = "data"
     }
 
     func send(svgString: String) {
@@ -489,6 +710,7 @@ final class VerifierVM: ObservableObject {
         if let ks = m.kaiSignature, let expected = contentSigExpected, ks.lowercased() != expected.lowercased() {
             self.error = "Content signature mismatch — cannot send."
             self.uiState = .sigMismatch
+            tab = "data"
             return
         }
 
@@ -498,14 +720,26 @@ final class VerifierVM: ObservableObject {
             m.kaiSignature = sig
             if m.userPhiKey == nil { m.userPhiKey = String(wvDerivePhiKeyFromSig(sig)) }
         }
-        // Ensure pulse exists (metadata core)
         if m.pulse == nil { m.pulse = pulseNow }
 
-        let now = wvKaiPulseNow()
-        let stamp = wvSHA256Hex("\(live)-\(m.pulse ?? 0)-\(now)")
-        let tx = WVSigilTransfer(senderSignature: live, senderStamp: stamp, senderKaiPulse: now, payload: payload)
+        // Hardened keys (SPKI)
+        let (priv, spkiB64u) = wvLoadOrCreateKeypair()
+        if m.creatorPublicKey == nil { m.creatorPublicKey = "spki_" + spkiB64u }
 
-        // Ensure context/type populated
+        let now = pulseNow
+        let stamp = wvSHA256Hex("\(live)-\(m.pulse ?? 0)-\(now)")
+
+        // payload must be set before open fields
+        let tx = WVSigilTransfer(
+            senderSignature: live,
+            senderStamp: stamp,
+            senderKaiPulse: now,
+            payload: payload,
+            receiverSignature: nil,
+            receiverStamp: nil,
+            receiverKaiPulse: nil
+        )
+
         if m.context == nil { m.context = "https://kai.sigil/ctx" }
         if m.type == nil { m.type = "KaiSigil" }
         m.transferNonce = m.transferNonce ?? wvGenNonce()
@@ -514,16 +748,17 @@ final class VerifierVM: ObservableObject {
         m.transfers = head
         if m.segmentSize == nil { m.segmentSize = 24 }
 
-        // v14 hardened (sender side)
-        if m.creatorPublicKey == nil { m.creatorPublicKey = "spki_" + UUID().uuidString.replacingOccurrences(of: "-", with: "") }
-        let prevRootV14 = m.transfersWindowRootV14 ?? (m.transfersWindowRoot ?? "")
-        let leafSend = wvHashTransferSenderSide(tx)
-        let senderSig = wvSHA256Hex("send:\(prevRootV14)|\(now)|\(m.creatorPublicKey!)|\(leafSend)|\(m.transferNonce!)")
+        // v14 hardened (sender)
+        let prevRootV14 = wvExpectedPrevHeadRootV14(m)
+        let leafSend    = wvHashTransferSenderSide(tx)
+        let msgSend     = wvBuildSendMsgV14(previousHeadRoot: prevRootV14, senderKaiPulse: now, senderPubKeySPKI: spkiB64u, nonce: m.transferNonce!, transferLeafHashSend: leafSend)
+        let senderSigB64u = wvSignB64u(priv, msgSend)
+
         var hardened = m.hardenedTransfers ?? []
         hardened.append(WVHardenedTransferV14(
             previousHeadRoot: prevRootV14,
             senderPubKey: m.creatorPublicKey!,
-            senderSig: senderSig,
+            senderSig: senderSigB64u,
             senderKaiPulse: now,
             nonce: m.transferNonce!,
             transferLeafHashSend: leafSend,
@@ -532,30 +767,27 @@ final class VerifierVM: ObservableObject {
         ))
         m.hardenedTransfers = hardened
 
-        // iOS 18-safe string load
+        // Persist back into SVG
         let svg = (try? String(contentsOf: url, encoding: .utf8))
             ?? ((try? Data(contentsOf: url)).flatMap { String(data: $0, encoding: .utf8) })
             ?? svgString
 
-        // Write back into SVG
         let withHead = wvEmbedMetadata(svgString: svg, meta: m)
         try? withHead.data(using: .utf8)?.write(to: url, options: .atomic)
 
-        // Recompute head, maybe segment
+        // Recompute head & roll if needed
         var after = refreshHeadWindow(m)
         let cap = after.segmentSize ?? 24
         if (after.transfers?.count ?? 0) >= cap {
-            // Seal current window as a segment (simple head-roll)
             let leaves = (after.transfers ?? []).map { wvHashTransferFull($0) }
             let root = wvBuildMerkleRoot(leaves)
             var segs = after.segments ?? []
             segs.append(WVSegmentHead(root: root, count: leaves.count))
             after.segments = segs
-            after.transfers = [] // roll
+            after.transfers = []
             after.cumulativeTransfers = (after.cumulativeTransfers ?? 0) + leaves.count
             after.segmentsMerkleRoot = wvBuildMerkleRoot(segs.map{$0.root})
 
-            // persist SVG after roll
             let rolled = wvEmbedMetadata(svgString: withHead, meta: after)
             try? rolled.data(using: .utf8)?.write(to: url, options: .atomic)
 
@@ -567,43 +799,85 @@ final class VerifierVM: ObservableObject {
         uiState = .readyReceive
         error = nil
 
-        // Build share URL (best-effort parity)
-        let canonical = (after.canonicalHash?.lowercased()) ?? wvSHA256Hex("\(after.pulse ?? 0)|\(after.beat ?? 0)|\(after.stepIndex ?? 0)|\(after.chakraDay ?? "")").lowercased()
+        // Share URL (parent/child canonical + history)
+        let parentCanonical = wvParentCanonical(after)
+        let last = after.transfers?.last
+        let prevHead = wvExpectedPrevHeadRootV14(after)
+        let childHash = wvChildCanonical(
+            parent: parentCanonical,
+            nonce: after.transferNonce ?? "",
+            senderStamp: last?.senderStamp ?? "",
+            senderKaiPulse: last?.senderKaiPulse ?? 0,
+            prevHead: prevHead,
+            leafSend: leafSend
+        )
         let payloadLite: [String: Any?] = [
             "pulse": after.pulse, "beat": after.beat, "stepIndex": after.stepIndex, "chakraDay": after.chakraDay,
             "kaiSignature": after.kaiSignature, "userPhiKey": after.userPhiKey
         ]
         let token = after.transferNonce ?? wvGenNonce()
-        let base = URL(string: "https://app.kaiklok.com/s/\(canonical)")!
+        var base = URL(string: "https://app.kaiklok.com/s/\(childHash)")!
         var comps = URLComponents(url: base, resolvingAgainstBaseURL: false)!
         let pJson = wvStableStringify(payloadLite.compactMapValues{ $0 })
         let pB64u = wvBase64url(Data(pJson.utf8))
-        comps.queryItems = [URLQueryItem(name: "p", value: pB64u), URLQueryItem(name: "t", value: token)]
+        let history = wvEncodeSigilHistory(after.transfers ?? [])
+        var q: [URLQueryItem] = [URLQueryItem(name: "p", value: pB64u),
+                                 URLQueryItem(name: "t", value: token)]
+        if !history.isEmpty { q.append(URLQueryItem(name: "h", value: history)) }
+        comps.queryItems = q
         self.sealUrl = comps.url?.absoluteString ?? base.absoluteString
-        self.sealHash = canonical
+        self.sealHash = childHash
         self.sealOpen = true
+
+        tab = "data"
     }
 
     func receive() {
         guard var m = meta, let live = liveSig, var last = m.transfers?.last else { return }
         guard last.receiverSignature == nil else { return }
-        let now = wvKaiPulseNow()
+
+        // Expiry/lock checks
+        let parentCtx = wvParentOpenExpiry(m, nowPulse: pulseNow)
+        if parentCtx.expired { self.error = "This open send has expired."; return }
+        let childCtx = wvChildLockInfo(m, nowPulse: pulseNow)
+        if childCtx.used { self.error = "This transfer link has already been used."; return }
+
+        let now = pulseNow
         last.receiverSignature = live
         last.receiverStamp = wvSHA256Hex("\(live)-\(last.senderStamp)-\(now)")
         last.receiverKaiPulse = now
         m.transfers?.removeLast()
         m.transfers?.append(last)
 
-        // v14 receive half
+        // v14 hardened (receiver)
         if var hLast = m.hardenedTransfers?.last, hLast.receiverSig == nil {
+            let (priv, spkiB64u) = wvLoadOrCreateKeypair()
+            m.creatorPublicKey = m.creatorPublicKey ?? ("spki_" + spkiB64u)
+
             let leafRecv = wvHashTransferFull(last)
-            let recvSig = wvSHA256Hex("recv:\(hLast.previousHeadRoot)|\(hLast.senderSig)|\(now)|\(m.creatorPublicKey ?? "spki_0")|\(leafRecv)")
-            hLast.receiverPubKey = m.creatorPublicKey ?? "spki_0"
-            hLast.receiverSig = recvSig
+            let msgR = wvBuildRecvMsgV14(
+                previousHeadRoot: hLast.previousHeadRoot,
+                senderSig: hLast.senderSig,
+                receiverKaiPulse: now,
+                receiverPubKeySPKI: spkiB64u,
+                transferLeafHashReceive: leafRecv
+            )
+            let receiverSigB64u = wvSignB64u(priv, msgR)
+
+            hLast.receiverPubKey = m.creatorPublicKey
+            hLast.receiverSig = receiverSigB64u
             hLast.receiverKaiPulse = now
             hLast.transferLeafHashReceive = leafRecv
             m.hardenedTransfers?.removeLast()
             m.hardenedTransfers?.append(hLast)
+        }
+
+        // Mark used if this is a derivative child
+        if m.childOfHash != nil {
+            var lock = m.sendLock ?? WVSigilSendLock(nonce: m.transferNonce ?? wvGenNonce(), used: false, usedPulse: nil)
+            lock.used = true
+            lock.usedPulse = now
+            m.sendLock = lock
         }
 
         meta = refreshHeadWindow(m)
@@ -616,6 +890,8 @@ final class VerifierVM: ObservableObject {
             let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(pay.name)
             try? bin.write(to: tmp, options: .atomic)
         }
+
+        tab = "data"
     }
 }
 
@@ -628,13 +904,11 @@ private struct SVGDocumentPicker: UIViewControllerRepresentable {
     func makeCoordinator() -> Coord { Coord(onPick: onPick, onCancel: onCancel) }
 
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        // Accept common SVG UTTypes, including when iOS tags them as XML/plain text
         var types: [UTType] = []
         if let t = UTType("public.svg-image") { types.append(t) }
         if let t = UTType(filenameExtension: "svg") { types.append(t) }
         types.append(.xml)
         types.append(.plainText)
-        // Always allow generic data as a fallback
         types.append(.data)
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: Array(Set(types)), asCopy: true)
         picker.allowsMultipleSelection = false
@@ -650,25 +924,19 @@ private struct SVGDocumentPicker: UIViewControllerRepresentable {
         init(onPick: @escaping (URL, String) -> Void, onCancel: @escaping () -> Void) {
             self.onPick = onPick; self.onCancel = onCancel
         }
-        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-            onCancel()
-        }
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { onCancel() }
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
             guard let url = urls.first else { onCancel(); return }
             let needsStop = url.startAccessingSecurityScopedResource()
             defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            do {
-                // First try UTF-8 string (iOS 18-safe)
-                let svg = try String(contentsOf: url, encoding: .utf8)
-                onPick(url, svg)
-            } catch {
-                // Fallback: load raw data, then decode as UTF-8
-                if let data = try? Data(contentsOf: url), let s = String(data: data, encoding: .utf8) {
-                    onPick(url, s)
-                } else {
-                    onCancel()
-                }
+
+            if let s = try? String(contentsOf: url, encoding: .utf8) {
+                onPick(url, s); return
             }
+            if let data = try? Data(contentsOf: url), let s = String(data: data, encoding: .utf8) {
+                onPick(url, s); return
+            }
+            onCancel()
         }
     }
 }
@@ -755,9 +1023,7 @@ private struct VerifierPanelView: View {
                             HStack(spacing: 8) {
                                 if let sig = meta.kaiSignature {
                                     TagView(text: "Σ \(sig.prefix(16))…")
-                                } else {
-                                    TagView(text: "Unsigned", tone: .warn)
-                                }
+                                } else { TagView(text: "Unsigned", tone: .warn) }
                                 if let phi = meta.userPhiKey {
                                     TagView(text: "Φ \(phi)")
                                 }
@@ -774,12 +1040,9 @@ private struct VerifierPanelView: View {
                     // Body
                     Group {
                         switch vm.tab {
-                        case "summary":
-                            SummaryGrid(vm: vm)
-                        case "lineage":
-                            LineageList(vm: vm)
-                        default:
-                            DataView(vm: vm)
+                        case "summary": SummaryGrid(vm: vm)
+                        case "lineage":  LineageList(vm: vm)
+                        default:         DataView(vm: vm)
                         }
                     }
                     .frame(maxHeight: .infinity)
@@ -821,7 +1084,14 @@ private struct VerifierPanelView: View {
                     .background(LinearGradient(colors: [kai("#001318").opacity(0.4), .clear], startPoint: .top, endPoint: .bottom))
                 } else {
                     Spacer()
-                    Text("Load a Sigil to begin").foregroundStyle(.secondary)
+                    VStack(spacing: 8) {
+                        Text("Sigil loaded, but no embedded <metadata> JSON was found.")
+                            .font(.headline)
+                        Text("Ensure your SVG includes <metadata><![CDATA[{…}]]></metadata> or plain <metadata>{…}</metadata>.")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                    }
                     Spacer()
                 }
             }
@@ -832,6 +1102,7 @@ private struct VerifierPanelView: View {
             .padding(.vertical, 10)
         }
         .ignoresSafeArea()
+        .onAppear { /* vm.bindPulse() already active */ }
         // Seal share sheet
         .sheet(isPresented: Binding(get: { vm.sealOpen }, set: { vm.sealOpen = $0 })) {
             if let url = URL(string: vm.sealUrl) {
@@ -864,20 +1135,20 @@ private struct VerifierPanelView: View {
     // Status chips (icons only)
     @ViewBuilder private var statusChips: some View {
         Group {
-            if vm.uiState == .invalid        { IconChip(kind: .err,  title: "Invalid",       sys: "xmark.octagon") }
+            if vm.uiState == .invalid        { IconChip(kind: .err,  title: "Invalid",            sys: "xmark.octagon") }
             if vm.uiState == .structMismatch { IconChip(kind: .err,  title: "Structure mismatch", sys: "exclamationmark.triangle") }
             if vm.uiState == .sigMismatch    { IconChip(kind: .err,  title: "Signature mismatch", sys: "xmark.seal") }
-            if vm.uiState == .notOwner       { IconChip(kind: .warn, title: "Not owner",     sys: "shield.slash") }
-            if vm.uiState == .unsigned       { IconChip(kind: .warn, title: "Unsigned",      sys: "number") }
-            if vm.uiState == .readySend      { IconChip(kind: .info, title: "Ready to send", sys: "paperplane") }
-            if vm.uiState == .readyReceive   { IconChip(kind: .info, title: "Ready to receive", sys: "arrow.down.circle") }
-            if vm.uiState == .complete       { IconChip(kind: .ok,   title: "Lineage sealed", sys: "checkmark.circle") }
-            if vm.uiState == .verified       { IconChip(kind: .ok,   title: "Verified",      sys: "seal") }
+            if vm.uiState == .notOwner       { IconChip(kind: .warn, title: "Not owner",          sys: "shield.slash") }
+            if vm.uiState == .unsigned       { IconChip(kind: .warn, title: "Unsigned",           sys: "number") }
+            if vm.uiState == .readySend      { IconChip(kind: .info, title: "Ready to send",      sys: "paperplane") }
+            if vm.uiState == .readyReceive   { IconChip(kind: .info, title: "Ready to receive",   sys: "arrow.down.circle") }
+            if vm.uiState == .complete       { IconChip(kind: .ok,   title: "Lineage sealed",     sys: "checkmark.circle") }
+            if vm.uiState == .verified       { IconChip(kind: .ok,   title: "Verified",           sys: "seal") }
 
-            if vm.contentSigMatches == true  { IconChip(kind: .ok,   title: "Content Σ match", sys: "sigma") }
-            if vm.contentSigMatches == false { IconChip(kind: .err,  title: "Content Σ mismatch", sys: "sigma") }
-            if vm.phiKeyMatches == true      { IconChip(kind: .ok,   title: "Φ-Key match",   sys: "function") }
-            if vm.phiKeyMatches == false     { IconChip(kind: .err,  title: "Φ-Key mismatch", sys: "function") }
+            if vm.contentSigMatches == true  { IconChip(kind: .ok,   title: "Content Σ match",    sys: "sum") }
+            if vm.contentSigMatches == false { IconChip(kind: .err,  title: "Content Σ mismatch", sys: "sum") }
+            if vm.phiKeyMatches == true      { IconChip(kind: .ok,   title: "Φ-Key match",        sys: "function") }
+            if vm.phiKeyMatches == false     { IconChip(kind: .err,  title: "Φ-Key mismatch",     sys: "function") }
 
             if let c = vm.meta?.cumulativeTransfers {
                 IconChip(kind: .info, title: "Cumulative", sys: "number.circle").badge(c)
@@ -899,12 +1170,16 @@ private struct VerifierPanelView: View {
 
 struct VerifierModal: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject private var vm = VerifierVM()
+    @StateObject private var vm: VerifierVM
 
     @State private var showSystemSvgPicker = false
     @State private var showAttachPicker = false
     @State private var importedSVG: String = ""
     @State private var panelOpen: Bool = false
+
+    init(pulseSource: KaiPulseSource = KaiPulseBus.shared) {
+        _vm = StateObject(wrappedValue: VerifierVM(pulseSource: pulseSource))
+    }
 
     var body: some View {
         NavigationStack {
@@ -951,29 +1226,23 @@ struct VerifierModal: View {
             .padding(.horizontal, 12)
             .navigationTitle("Verifier")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-            .onAppear { vm.startPulse() }
-            .onDisappear { vm.stopPulse() }
 
-            // SVG IMPORT (UIKit picker)
             .sheet(isPresented: $showSystemSvgPicker) {
                 SVGDocumentPicker(
                     onPick: { url, svg in
                         importedSVG = svg
                         vm.handle(svgData: svg, blobURL: url)
-                        showSystemSvgPicker = false
-                        panelOpen = true
+                        DispatchQueue.main.async {
+                            vm.tab = "data"
+                            panelOpen = true
+                            showSystemSvgPicker = false
+                        }
                     },
                     onCancel: { showSystemSvgPicker = false }
                 )
                 .ignoresSafeArea()
             }
 
-            // Full-screen “dialog”
             .fullScreenCover(isPresented: $panelOpen) {
                 VerifierPanelView(vm: vm, importedSVG: $importedSVG, showAttachPicker: $showAttachPicker)
                     .background(Color.black.opacity(0.25))
@@ -991,8 +1260,6 @@ private struct SummaryGrid: View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 KV("Now", "\(vm.pulseNow)")
-                KV("frequency (Hz)", vm.meta?.frequencyHz.map { String($0) } ?? "—", wide: false)
-                KV("Spiral Gate", vm.meta?.chakraGate ?? "—", wide: false)
                 KV("Segments", "\(vm.meta?.segments?.count ?? 0)")
                 KV("Cumulative", "\(vm.meta?.cumulativeTransfers ?? 0)")
                 if let root = vm.meta?.segmentsMerkleRoot { KV("Segments Root", root, wide: true, mono: true) }
@@ -1065,7 +1332,7 @@ private struct LineageList: View {
                             }
                         }
                         .padding(12)
-                        .background(panel())
+                        .background(panelBackground())
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                 }
@@ -1081,7 +1348,7 @@ private struct LineageList: View {
 
 private struct DataView: View {
     @ObservedObject var vm: VerifierVM
-    @State private var viewRaw = false
+    @State private var viewRaw = true // default to raw JSON open
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Toggle("View raw JSON", isOn: $viewRaw)
@@ -1132,7 +1399,7 @@ private struct IconChip: View {
         .clipShape(Capsule())
         .foregroundStyle(chipFG(kind))
         .accessibilityLabel(Text(title))
-        .help(title)
+        // .help(title) // Uncomment on platforms that support .help
     }
 
     private func chipBG(_ k: Tone) -> some ShapeStyle {
@@ -1214,7 +1481,7 @@ private struct KV: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(panel())
+        .background(panelBackground())
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .gridCellColumns(wide ? 2 : 1)
     }
@@ -1288,10 +1555,8 @@ private func blurTopbar() -> some View {
     LinearGradient(colors: [Color.white.opacity(0.06), Color.white.opacity(0.03)], startPoint: .top, endPoint: .bottom)
         .background(.ultraThinMaterial)
 }
-private func panel() -> some ShapeStyle {
-    AnyShapeStyle(
-        LinearGradient(colors: [Color.white.opacity(0.035), Color.white.opacity(0.02)], startPoint: .top, endPoint: .bottom)
-    )
+private func panelBackground() -> some View {
+    LinearGradient(colors: [Color.white.opacity(0.035), Color.white.opacity(0.02)], startPoint: .top, endPoint: .bottom)
 }
 private func kai(_ hex: String) -> Color {
     var s = hex.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1324,10 +1589,14 @@ private struct NeonBorderedButtonStyle: ButtonStyle {
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
             .background(
-                prominent
-                ? AnyShapeStyle(LinearGradient(colors: [Color.white.opacity(0.10), Color.white.opacity(0.05)],
-                                               startPoint: .top, endPoint: .bottom))
-                : AnyShapeStyle(Color.clear)
+                Group {
+                    if prominent {
+                        LinearGradient(colors: [Color.white.opacity(0.10), Color.white.opacity(0.05)],
+                                       startPoint: .top, endPoint: .bottom)
+                    } else {
+                        Color.clear
+                    }
+                }
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)

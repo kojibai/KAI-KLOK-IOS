@@ -521,18 +521,20 @@ private let DEFAULT_POLICY = IssuancePolicy(
     tierFib: [1597, 2584, 4181, 6765, 10946, 17711, 28657, 46368, 75025, 121393]
 )
 
-private struct IssuanceQuote {
+// Local, modal-scoped quote to avoid collisions with any global IssuanceQuote
+private struct InvIssuanceQuote {
     let phiPerUsd: Double
     let usdPerPhi: Double
     let chips: (adoption: Double, premium: Double, size: Double, streak: Double, tier: Double, milestone: Double)
     let expl: String
 }
 
-private func quotePhiForUsd(meta: SigilMetadataLite?,
-                            nowPulse: Int,
-                            pulsesPerBeat: Int,
-                            usd: Double,
-                            policy: IssuancePolicy = DEFAULT_POLICY) -> IssuanceQuote {
+/// Local, modal-scoped pricing to avoid signature clashes with bridge helpers.
+private func invQuotePhiForUsd(meta: SigilMetadataLite?,
+                               nowPulse: Int,
+                               pulsesPerBeat: Int,
+                               usd: Double,
+                               policy: IssuancePolicy = DEFAULT_POLICY) -> InvIssuanceQuote {
     let avgFlow = (meta?.ip?.expectedCashflowPhi ?? []).reduce(0, +) / Double(max(1, meta?.ip?.expectedCashflowPhi?.count ?? 0))
     let adoption = 1.0 + policy.adoptionMaxBoost * clamp01( log10(max(1, avgFlow + 1)) / 3.0 )
 
@@ -566,7 +568,7 @@ private func buildExchangeSeries(meta: SigilMetadataLite?,
     let step  = max(1, pulsesPerBeat / 7)
     var out: [CGPoint] = []
     for p in stride(from: start, through: end, by: step) {
-        let q = quotePhiForUsd(meta: meta, nowPulse: p, pulsesPerBeat: pulsesPerBeat, usd: usdSample)
+        let q = invQuotePhiForUsd(meta: meta, nowPulse: p, pulsesPerBeat: pulsesPerBeat, usd: usdSample)
         out.append(.init(x: CGFloat(p), y: CGFloat(q.usdPerPhi)))
     }
     return out
@@ -647,10 +649,10 @@ private struct LivePhiPanel: View {
         )
     }
 
-    private var quote: IssuanceQuote? {
+    private var quote: InvIssuanceQuote? {
         guard let c = clock else { return nil }
         let amt = amount.isFinite && amount > 0 ? amount : 1
-        return quotePhiForUsd(meta: meta, nowPulse: c.nowPulse, pulsesPerBeat: max(1, c.pulsesPerBeat), usd: amt)
+        return invQuotePhiForUsd(meta: meta, nowPulse: c.nowPulse, pulsesPerBeat: max(1, c.pulsesPerBeat), usd: amt)
     }
 
     private var series: [CGPoint] {

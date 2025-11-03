@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  KaiKlok Watch App — Divine Interface v1.1.1 “Kai-Fidelity+”
+//  KaiKlok Watch App — Divine Interface v1.2.0 “Kai-Fidelity+ Minimal”
 //  Ship-ready: μpulse-exact, genesis-resnap, breath-periodic rendering, canon arcs.
 //  Notes for Info.plist:
 //    • NSMotionUsageDescription (tilt sparkle)
@@ -77,13 +77,13 @@ private enum DayName: String, CaseIterable, Codable { case Solhara, Aquaris, Fla
 private struct LocalKai: Codable {
     let beat: Int               // 0..35
     let step: Int               // 0..43
-    let wholePulsesIntoDay: Int // integer pulses into day (display/reporting)
+    let wholePulsesIntoDay: Int
     let dayOfMonth: Int         // 1..42
     let monthIndex1: Int        // 1..8
     let weekday: DayName
     let monthDayIndex: Int      // 0..41
     let chakraStepString: String
-    let sealText: String        // "beat:SS — D#/M#"
+    let sealText: String
 }
 
 private func computeLocalKai(_ now: Date) -> LocalKai {
@@ -207,13 +207,6 @@ private func chakraColor(beat: Int, step: Int) -> Color {
     return kaiHex(palette[idx], alpha: 0.85)
 }
 
-// Canon arc names (6 × 7 days = 42)
-private func arcName(for dayOfMonth: Int) -> String {
-    let arcs = ["Ignition","Integration","Harmonization","Reflection","Purification","Dream"]
-    let d = max(1, min(42, dayOfMonth))
-    return arcs[(d - 1) / 7]
-}
-
 // MARK: - Motion (tilt for orbital sparkle)
 
 @MainActor
@@ -266,7 +259,6 @@ private final class HarmonicAudioPulse: ObservableObject {
         try? s.setActive(true)
     }
 
-    // Synthesize gentle AM tone and cache to temp, then loop with AVAudioPlayer.
     private func ensureToneFileURL(frequency: Double, seconds: Double = 12.0) -> URL? {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("harmonic_\(Int(frequency))_AM.caf")
         if FileManager.default.fileExists(atPath: url.path) { return url }
@@ -307,33 +299,19 @@ private final class HarmonicAudioPulse: ObservableObject {
             p.volume = 0.8
             p.prepareToPlay()
             self.player = p
-        } catch {
-            self.player = nil
-        }
+        } catch { self.player = nil }
     }
 
-    func play() {
-        guard let p = player else { return }
-        p.play()
-        isPlaying = true
-    }
-
-    func stop() {
-        guard let p = player else { return }
-        p.stop()
-        p.currentTime = 0
-        isPlaying = false
-        // Be a good platform citizen
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-    }
+    func play()  { guard let p = player else { return }; p.play();  isPlaying = true }
+    func stop()  { guard let p = player else { return }; p.stop(); p.currentTime = 0; isPlaying = false; try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
 }
 
-// MARK: - KaiTime Affirmations (watch-safe TTS + gentle fade)
+// MARK: - KaiTime Affirmations (watch-safe TTS)
+// (We keep the TTS whisper, but we no longer render the text overlay to keep UI text-free.)
 
 @MainActor
 private final class AffirmationCenter: ObservableObject {
     static let shared = AffirmationCenter()
-    @Published var current: String? = nil
     @Published var whisperEnabled: Bool = false
 
     private let phrases = [
@@ -354,35 +332,26 @@ private final class AffirmationCenter: ObservableObject {
     #endif
 
     func trigger(beat: Int, step: Int) {
-        // Beat start only (step==0); simpler, clearer, canon-aligned.
-        guard step == 0 else { return }
+        guard step == 0, whisperEnabled else { return }
         let idx = (beat % max(1, phrases.count))
         let text = phrases[idx]
-        withAnimation(.easeInOut(duration: 2.6)) { current = text }
-        if whisperEnabled {
-            #if os(watchOS)
-            if let s = synth {
-                let utt = AVSpeechUtterance(string: text)
-                utt.rate = 0.45; utt.pitchMultiplier = 0.9; utt.volume = 0.55
-                s.speak(utt)
-            } else {
-                WKInterfaceDevice.current().play(.notification)
-            }
-            #else
+        #if os(watchOS)
+        if let s = synth {
             let utt = AVSpeechUtterance(string: text)
             utt.rate = 0.45; utt.pitchMultiplier = 0.9; utt.volume = 0.55
-            synth.speak(utt)
-            #endif
+            s.speak(utt)
+        } else {
+            WKInterfaceDevice.current().play(.notification)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.6) { [weak self] in
-            withAnimation(.easeInOut(duration: 2.6)) {
-                if self?.current == text { self?.current = nil }
-            }
-        }
+        #else
+        let utt = AVSpeechUtterance(string: text)
+        utt.rate = 0.45; utt.pitchMultiplier = 0.9; utt.volume = 0.55
+        synth.speak(utt)
+        #endif
     }
 }
 
-// MARK: - ContentView
+// MARK: - ContentView (minimal, icon-only chrome; full-screen dial)
 
 struct ContentView: View {
     @StateObject private var engine = KairosEngine.shared
@@ -390,7 +359,6 @@ struct ContentView: View {
     @StateObject private var audio  = HarmonicAudioPulse.shared
     @StateObject private var affirm = AffirmationCenter.shared
 
-    // Environment empathy
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // Persisted vibes
@@ -400,29 +368,25 @@ struct ContentView: View {
     @AppStorage("customHz") private var storedCustomHz: Double = 432
     @AppStorage("affirmWhisperEnabled") private var storedWhisperEnabled: Bool = false
 
-    // First-run teaching tip
-    @State private var showTips = false
-
+    // Sheets
     @State private var showWeekModal = false
-    @State private var showEternalKlock = false
+    @State private var showModeSheet = false
+
+    // Face
     @State private var isSigilOverlay = false
 
-    @State private var showModeSheet = false
-    @State private var customHz: Double = 432
-
+    // Crown scrub
     @State private var isScrubbing = false
     @State private var crown: Double = 0
     @State private var previewMoment: KaiMoment? = nil
-    @State private var lastHapticBeatIndex: Int = -1   // FIX: track beat boundary, not step/44
+    @State private var lastHapticBeatIndex: Int = -1
 
+    // Audio
     @State private var resonantLocked = false
+    @State private var customHz: Double = 432
 
     private let breath: Double = KKS.kaiPulseSec
-
     private var currentMoment: KaiMoment { previewMoment ?? engine.moment }
-    private var chipText: String {
-        isScrubbing ? "Scrub \(currentMoment.kai.chakraStepString)" : "Live \(engine.moment.kai.chakraStepString)"
-    }
 
     var body: some View {
         ZStack {
@@ -431,91 +395,84 @@ struct ContentView: View {
 
             GeometryReader { geo in
                 let side   = min(geo.size.width, geo.size.height)
-                let dialSz = min(side * 0.92, 220)
+                let dialSz = side * 0.96  // nearly full-bleed
 
-                VStack(spacing: 6) {
-                    Text(arcName(for: currentMoment.kai.dayOfMonth))
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(kaiHex("#cfefff").opacity(0.9))
-                        .padding(.top, 2)
+                // ── Full-screen dial
+                ZStack {
+                    KaiDialView(moment: currentMoment, breath: breath, glowSize: dialSz, lightMode: eternalLight)
+                        .frame(width: dialSz, height: dialSz)
+                        .accessibilityHidden(true)
 
-                    ZStack {
-                        KaiDialView(moment: currentMoment, breath: breath, glowSize: dialSz, lightMode: eternalLight)
-                            .frame(width: dialSz, height: dialSz)
-                            .accessibilityHidden(true)
+                    ChakraPulseOverlay(moment: currentMoment, breath: breath, reduceMotion: reduceMotion)
+                        .allowsHitTesting(false)
 
-                        ChakraPulseOverlay(moment: currentMoment, breath: breath, reduceMotion: reduceMotion)
+                    HarmonicSpark(moment: currentMoment, roll: motion.roll, pitch: motion.pitch, reduceMotion: reduceMotion)
+                        .allowsHitTesting(false)
+
+                    if isSigilOverlay {
+                        SigilOverlay(moment: currentMoment)
+                            .transition(.opacity)
                             .allowsHitTesting(false)
+                    }
 
-                        HarmonicSpark(moment: currentMoment, roll: motion.roll, pitch: motion.pitch, reduceMotion: reduceMotion)
-                            .allowsHitTesting(false)
-
-                        if isSigilOverlay {
-                            SigilOverlay(moment: currentMoment)
-                                .transition(.opacity)
-                                .allowsHitTesting(false)
+                    // Tap gestures on the face (no text UI)
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 2) {
+                            withAnimation(.easeInOut(duration: 0.2)) { isSigilOverlay.toggle() }
                         }
-
-                        Color.clear
-                            .contentShape(Rectangle())
-                            .onTapGesture(count: 2) {
-                                withAnimation(.easeInOut(duration: 0.25)) { isSigilOverlay.toggle() }
-                            }
-                            .onLongPressGesture(minimumDuration: 0.6) { captureSeal() }
-                    }
-
-                    HStack(spacing: 8) {
-                        Text(verbatim: currentMoment.kai.sealText)
-                            .font(.system(.footnote, design: .monospaced))
-                            .foregroundStyle(kaiHex("#e6faff"))
-                            .padding(.horizontal, 8).padding(.vertical, 4)
-                            .background(kaiHex("#00eaff", alpha: 0.14))
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(kaiHex("#00eaff", alpha: 0.36), lineWidth: 1))
-
-                        Text("μ\(KKS.microPulsesSinceGenesis(currentMoment.date))")
-                            .font(.system(size: 10, weight: .regular, design: .monospaced))
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
-
-                    HStack(spacing: 8) {
-                        ModeChip(isScrubbing: isScrubbing, text: chipText)
-                            .onTapGesture { withAnimation(.easeInOut(duration: 0.2)) { toggleScrub() } }
-
-                        HarmonicButton(label: resonantLocked ? NSLocalizedString("Unlock", comment: "") : NSLocalizedString("Resonant Lock", comment: "")) {
-                            resonantLocked.toggle()
-                            if resonantLocked {
-                                if !audio.isReady { audio.prepare(mode: audio.mode, customHz: customHz) }
-                                audio.play()
-                                WKInterfaceDevice.current().play(.directionUp)
-                            } else {
-                                audio.stop()
-                            }
-                        }
-
-                        HarmonicButton(label: audio.mode.rawValue) { showModeSheet = true }
-                    }
-
-                    Spacer(minLength: 2)
+                        .onLongPressGesture(minimumDuration: 0.6) { captureSeal() }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
-            if let phrase = affirm.current {
-                Text(phrase)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.95))
-                    .padding(.horizontal, 10).padding(.vertical, 8)
-                    .background(kaiHex("#09131a").opacity(0.72), in: Capsule())
-                    .overlay(Capsule().stroke(kaiHex("#7ff7ff").opacity(0.35), lineWidth: 1))
-                    .transition(.opacity)
-            }
-
-            if showTips {
-                TipsOverlay {
-                    withAnimation(.easeInOut(duration: 0.3)) { showTips = false; didShowTips = true }
+            // ── Top-left: tiny Light / Dark pair (very small)
+            HStack(spacing: 6) {
+                IconButtonWatch(symbol: "sun.max.fill", isOn: eternalLight) {
+                    eternalLight = true
+                    WKInterfaceDevice.current().play(.click)
+                }
+                IconButtonWatch(symbol: "moon.fill", isOn: !eternalLight) {
+                    eternalLight = false
+                    WKInterfaceDevice.current().play(.click)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(.top, 4).padding(.leading, 6)
+
+            // ── Top-right: audio lock, tone mode, week
+            HStack(spacing: 8) {
+                IconButtonWatch(symbol: audio.isPlaying ? "speaker.wave.2.fill" : "speaker.wave.1") {
+                    resonantLocked.toggle()
+                    if resonantLocked {
+                        if !audio.isReady { audio.prepare(mode: audio.mode, customHz: customHz) }
+                        audio.play()
+                        WKInterfaceDevice.current().play(.directionUp)
+                    } else {
+                        audio.stop()
+                    }
+                }
+                IconButtonWatch(symbol: "tuningfork") { showModeSheet = true }
+                IconButtonWatch(symbol: "calendar")    { showWeekModal = true }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            .padding(.top, 4).padding(.trailing, 6)
+
+            // ── Bottom-center: scrub toggle, sigil overlay toggle, capture
+            HStack(spacing: 12) {
+                IconButtonWatch(symbol: isScrubbing ? "dial.medium.fill" : "dial.medium") {
+                    toggleScrub()
+                }
+                IconButtonWatch(symbol: isSigilOverlay ? "seal.fill" : "seal") {
+                    withAnimation(.easeInOut(duration: 0.2)) { isSigilOverlay.toggle() }
+                }
+                IconButtonWatch(symbol: "camera") { captureSeal() }
+            }
+            .padding(.horizontal, 10).padding(.vertical, 6)
+            .background(kaiHex("#06121a").opacity(0.65), in: Capsule())
+            .overlay(Capsule().stroke(Color.white.opacity(0.10), lineWidth: 1))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom, 4)
         }
         .onAppear {
             // Restore vibe prefs
@@ -523,53 +480,40 @@ struct ContentView: View {
             customHz = storedCustomHz
             affirm.whisperEnabled = storedWhisperEnabled
 
-            // Teach briefly on first run
-            if !didShowTips {
-                showTips = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + breath * 2.0) {
-                    withAnimation(.easeInOut(duration: 0.3)) { showTips = false; didShowTips = true }
-                }
-            }
-
-            // Start motion updates when visible
+            // First-run tips removed (text-free UI); keep motion start.
             motion.start()
         }
-        .onDisappear {
-            motion.stop()
-        }
-        // Persist on-the-fly changes
+        .onDisappear { motion.stop() }
+
+        // Persist
         .onChange(of: audio.mode) { _, new in storedAudioMode = new.rawValue }
         .onChange(of: customHz) { _, new in storedCustomHz = new }
         .onChange(of: affirm.whisperEnabled) { _, new in storedWhisperEnabled = new }
 
+        // Crown scrub binding
         .focusable(true)
         .digitalCrownRotation(
-            $crown,
-            from: -1.0,
-            through: 1.0,
-            by: 0.001,
-            sensitivity: .high,
-            isContinuous: true,
-            isHapticFeedbackEnabled: true
+            $crown, from: -1.0, through: 1.0, by: 0.001,
+            sensitivity: .high, isContinuous: true, isHapticFeedbackEnabled: true
         )
         .onChange(of: crown) { _, _ in
             guard isScrubbing else { return }
             previewMoment = scrubbedMoment(deltaBeats: crown)
-
-            // FIX: Haptic on beat boundaries (step==0) with dedup per-beat
             if let pm = previewMoment, pm.kai.step == 0 {
-                let beatIndex = pm.kai.beat // 0..35
+                let beatIndex = pm.kai.beat
                 if beatIndex != lastHapticBeatIndex {
                     lastHapticBeatIndex = beatIndex
                     WKInterfaceDevice.current().play(.click)
                 }
             }
         }
+
+        // Pulse boundary events
         .onChange(of: engine.moment) { oldVal, newVal in
             if newVal.kai.step == 0, newVal != oldVal {
                 WKInterfaceDevice.current().play(.directionUp)
             }
-            // Beat-start micro-tone *only sometimes* when not locked (energy friendly)
+            // Gentle micro-tone sometimes when not locked (energy friendly)
             if newVal.kai.step == 0 && !audio.isPlaying && (newVal.kai.beat % 3 == 0) {
                 if !audio.isReady { audio.prepare(mode: audio.mode, customHz: customHz) }
                 audio.play()
@@ -580,25 +524,21 @@ struct ContentView: View {
         }
         .animation(.linear(duration: 0.22), value: engine.moment.kai.step)
 
-        .safeAreaInset(edge: .bottom) {
-            BottomToolbarWatch(
-                breath: breath,
-                leftView: AnyView(HarmonicToggle(title: eternalLight ? NSLocalizedString("Light", comment: "") : NSLocalizedString("Night", comment: ""), isOn: eternalLight) { eternalLight.toggle() }),
-                rightView: AnyView(HarmonicButton(label: NSLocalizedString("Week", comment: "")) { showWeekModal = true })
-            )
-            .padding(.bottom, 4)
-        }
+        // Sheets
         .sheet(isPresented: $showWeekModal) { WeekKalendarWatchSheet() }
-        .sheet(isPresented: $showEternalKlock) { EternalKlockWatchView(moment: currentMoment, breath: breath) }
         .sheet(isPresented: $showModeSheet) {
             ModeSheet(mode: $audio.mode, customHz: $customHz) {
                 audio.prepare(mode: audio.mode, customHz: customHz)
             }
         }
+
+        // Accessibility (no visible text; keep descriptive label)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(currentMoment.kai.sealText), \(currentMoment.kai.weekday.rawValue)")
-        .accessibilityHint(isScrubbing ? NSLocalizedString("Turn Digital Crown to preview; tap to return live.", comment: "") : NSLocalizedString("Tap to enable Digital Crown preview.", comment: ""))
+        .accessibilityHint(isScrubbing ? NSLocalizedString("Turn Digital Crown to preview; tap the dial again to return live.", comment: "") : NSLocalizedString("Tap the dial with two fingers to toggle the seal overlay. Long-press to capture a seal.", comment: ""))
     }
+
+    // MARK: - Actions
 
     private func toggleScrub() {
         isScrubbing.toggle()
@@ -618,7 +558,6 @@ struct ContentView: View {
         return KaiMoment(date: targetDate, kai: computeLocalKai(targetDate))
     }
 
-    // MARK: - SigilVault Capture
     private func captureSeal() {
         let stamp = currentMoment
         struct SealCapture: Codable {
@@ -635,14 +574,14 @@ struct ContentView: View {
         )
         do {
             let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            var url = dir.appendingPathComponent("seal_\(payload.pulseMicro).session.φ.json") // ← PATCH: var (mutable)
+            var url = dir.appendingPathComponent("seal_\(payload.pulseMicro).session.φ.json")
             let data = try JSONEncoder().encode(payload)
             try data.write(to: url, options: .atomic)
 
             // Exclude from backups (ephemeral session capture)
             var values = URLResourceValues()
             values.isExcludedFromBackup = true
-            try? url.setResourceValues(values) // ok: mutating method on var
+            try? url.setResourceValues(values)
 
             WKInterfaceDevice.current().play(.success)
         } catch {
@@ -652,6 +591,30 @@ struct ContentView: View {
 }
 
 #Preview("KaiKlok (watchOS)") { ContentView() }
+
+// MARK: - Icon button (tiny, no text)
+
+private struct IconButtonWatch: View {
+    let symbol: String
+    var isOn: Bool = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .frame(width: 26, height: 26)
+                .background(kaiHex("#08141b").opacity(0.78), in: Circle())
+                .overlay(
+                    Circle().stroke(isOn ? kaiHex("#7ff7ff").opacity(0.55) : Color.white.opacity(0.14), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
+        }
+        .buttonStyle(.plain)
+        .contentShape(Circle())
+        .accessibilityLabel(Text(symbol.replacingOccurrences(of: ".", with: " ")))
+    }
+}
 
 // MARK: - Kai Dial (hero view)
 
@@ -666,10 +629,10 @@ private struct KaiDialView: View {
         ZStack {
             Circle()
                 .fill(
-                    RadialGradient(colors: [kaiHex("#00ffff").opacity(breathe ? 0.26 : 0.14), .clear],
+                    RadialGradient(colors: [kaiHex("#00ffff").opacity(breathe ? 0.24 : 0.12), .clear],
                                    center: .center, startRadius: 0, endRadius: glowSize)
                 )
-                .blur(radius: 18)
+                .blur(radius: 16)
                 .allowsHitTesting(false)
 
             Canvas { ctx, size in
@@ -710,10 +673,7 @@ private struct KaiDialView: View {
                 breathe = true
             }
         }
-        .onDisappear {
-            // Stop breathing when off-screen to avoid idle work
-            breathe = false
-        }
+        .onDisappear { breathe = false }
     }
 
     private func drawTrack(ctx: inout GraphicsContext, center: CGPoint, r: CGFloat, width: CGFloat, color1: Color, color2: Color) {
@@ -790,7 +750,7 @@ private struct ChakraPulseOverlay: View {
     }
 }
 
-// MARK: - Tilt-Based Orbital Sparkle (breath-periodic timeline)
+// MARK: - Tilt-Based Orbital Sparkle
 
 private struct HarmonicSpark: View {
     let moment: KaiMoment
@@ -850,119 +810,7 @@ private struct SigilOverlay: View {
                 ctx.addFilter(.blur(radius: 5))
                 ctx.stroke(p, with: .color(kaiHex("#7ff7ff").opacity(0.28)), lineWidth: 6.0)
             }
-            .overlay(
-                VStack(spacing: 4) {
-                    Text("Seal").font(.system(size: 11, weight: .semibold))
-                    Text("pulse μ\(KKS.microPulsesSinceGenesis(moment.date)) • \(moment.kai.chakraStepString)")
-                        .font(.system(.caption2, design: .monospaced)).opacity(0.85)
-                }
-                .padding(6)
-                .background(kaiHex("#041019").opacity(0.76), in: Capsule())
-                .overlay(Capsule().stroke(kaiHex("#7ff7ff").opacity(0.35), lineWidth: 1))
-                .padding(.top, 6)
-                , alignment: .top
-            )
         }
-    }
-}
-
-// MARK: - Live/Scrub chip
-
-private struct ModeChip: View {
-    let isScrubbing: Bool
-    let text: String
-    var body: some View {
-        HStack(spacing: 6) {
-            HarmonicGlyph(size: 12, thick: 1.5).frame(width: 14, height: 14)
-            Text(text).font(.footnote.weight(.semibold))
-        }
-        .padding(.vertical, 6).padding(.horizontal, 10)
-        .background(kaiHex("#06121a").opacity(0.75), in: Capsule())
-        .overlay(Capsule().stroke(kaiHex("#7fdfff").opacity(0.28), lineWidth: 1))
-        .shadow(color: .black.opacity(0.35), radius: 6, y: 2)
-        .accessibilityLabel(isScrubbing ? "Scrubbing with Digital Crown" : "Live mode")
-    }
-}
-
-private struct HarmonicGlyph: View {
-    let size: CGFloat
-    let thick: CGFloat
-    var body: some View {
-        ZStack {
-            Circle().stroke(lineWidth: thick)
-            Path { p in
-                p.addArc(center: CGPoint(x: size/2, y: size/2), radius: size*0.28, startAngle: .degrees(0), endAngle: .degrees(300), clockwise: false)
-            }.stroke(style: StrokeStyle(lineWidth: thick, lineCap: .round))
-        }
-        .foregroundStyle(kaiHex("#7ff7ff"))
-        .frame(width: size, height: size)
-    }
-}
-
-// MARK: - Buttons / Toolbar
-
-private struct HarmonicButton: View {
-    let label: String
-    let action: () -> Void
-    var body: some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 12, weight: .semibold))
-                .padding(.vertical, 6).padding(.horizontal, 10)
-                .background(kaiHex("#0a1b24"), in: Capsule())
-                .overlay(Capsule().stroke(kaiHex("#7fdfff").opacity(0.3), lineWidth: 1))
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct HarmonicToggle: View {
-    let title: String
-    let isOn: Bool
-    let toggle: () -> Void
-    var body: some View {
-        Button(action: toggle) {
-            Text(title)
-                .font(.system(size: 12, weight: .semibold))
-                .padding(.vertical, 6).padding(.horizontal, 10)
-                .background(isOn ? kaiHex("#002b38") : kaiHex("#0a1b24"), in: Capsule())
-                .overlay(Capsule().stroke(kaiHex("#7fdfff").opacity(0.3), lineWidth: 1))
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct BottomToolbarWatch: View {
-    let breath: Double
-    let leftView: AnyView
-    let rightView: AnyView
-    @State private var on = false
-    var body: some View {
-        HStack(spacing: 10) {
-            ZStack { breathingHalo(on: on, breath: breath); leftView }
-            ZStack { breathingHalo(on: on, breath: breath); rightView }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(kaiHex("#06121a").opacity(0.7), in: Capsule())
-        .overlay(Capsule().stroke(Color.white.opacity(0.12), lineWidth: 1))
-        .shadow(color: .black.opacity(0.35), radius: 8, y: 4)
-        .frame(maxWidth: .infinity)
-        .onAppear {
-            withAnimation(.easeInOut(duration: breath).repeatForever(autoreverses: true)) { on = true }
-        }
-    }
-    private func breathingHalo(on: Bool, breath: Double) -> some View {
-        RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(
-                RadialGradient(colors: [.cyan.opacity(on ? 0.18 : 0.08),
-                                        .blue.opacity(on ? 0.08 : 0.04),
-                                        .clear],
-                               center: .center, startRadius: 0, endRadius: 90)
-            )
-            .blur(radius: 8)
-            .frame(width: 52, height: 52)
-            .allowsHitTesting(false)
     }
 }
 
@@ -1058,39 +906,19 @@ private struct AtlanteanCanvasWatch: View {
     }
 }
 
-// MARK: - Simple sheets
+// MARK: - Simple sheets (unchanged content; invoked by icons)
 
 private struct WeekKalendarWatchSheet: View {
     var body: some View {
         VStack(spacing: 8) {
-            HarmonicGlyph(size: 20, thick: 2)
-            Text("Week Kalendar").font(.headline)
+            Image(systemName: "calendar")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(kaiHex("#7ff7ff"))
+            Text("Week Kalendar")
+                .font(.headline)
             Text("Watch-optimized week view coming here.")
                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }.padding()
-    }
-}
-
-private struct EternalKlockWatchView: View {
-    let moment: KaiMoment
-    let breath: Double
-    var body: some View {
-        ZStack {
-            LinearGradient(colors: [.black, kaiHex("#02040a")], startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
-            VStack(spacing: 10) {
-                KaiDialView(moment: moment, breath: breath, glowSize: 220, lightMode: false)
-                    .frame(width: 190, height: 190)
-                Text(moment.kai.sealText)
-                    .font(.system(.footnote, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .padding(.horizontal, 10).padding(.vertical, 6)
-                    .background(kaiHex("#07131a").opacity(0.8), in: Capsule())
-                Text("Day \(moment.kai.dayOfMonth) of Month \(moment.kai.monthIndex1) — \(moment.kai.weekday.rawValue)")
-                    .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            }
-            .padding()
-        }
     }
 }
 
@@ -1108,7 +936,9 @@ private struct ModeSheet: View {
                     HStack {
                         Text(m.rawValue).font(.system(size: 14, weight: .semibold))
                         Spacer()
-                        if mode == m { HarmonicGlyph(size: 14, thick: 2).foregroundStyle(kaiHex("#7ff7ff")) }
+                        if mode == m {
+                            Image(systemName: "checkmark.circle.fill").foregroundStyle(kaiHex("#7ff7ff"))
+                        }
                     }
                     .padding(8)
                     .background(kaiHex("#08141b"), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -1121,34 +951,15 @@ private struct ModeSheet: View {
                     Text("\(Int(customHz))").font(.system(.footnote, design: .monospaced))
                 }.padding(.horizontal, 8)
             }
-            HarmonicButton(label: "Apply") { onApply() }
-        }
-        .padding()
-    }
-}
-
-// MARK: - First-run Tips Overlay
-
-private struct TipsOverlay: View {
-    var onDismiss: () -> Void
-    var body: some View {
-        VStack(spacing: 8) {
-            Text("Welcome to KaiKlok")
-                .font(.headline)
-            Text("• Double-tap the dial to show the Seal overlay.\n• Long-press the dial to capture a sealed moment.\n• Tap “Live/Scrub” chip to preview with the Digital Crown.")
-                .font(.system(.footnote))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-            Button(action: onDismiss) {
-                Text("Got it").font(.system(size: 13, weight: .semibold))
+            Button {
+                onApply()
+            } label: {
+                Text("Apply")
+                    .font(.system(size: 13, weight: .semibold))
                     .padding(.vertical, 6).padding(.horizontal, 14)
                     .background(kaiHex("#0a1b24"), in: Capsule())
             }.buttonStyle(.plain)
         }
-        .padding(12)
-        .background(kaiHex("#06121a").opacity(0.9), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(kaiHex("#7fdfff").opacity(0.3), lineWidth: 1))
         .padding()
-        .transition(.opacity)
     }
 }
