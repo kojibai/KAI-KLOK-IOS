@@ -102,7 +102,7 @@ private enum KKS {
     Color(ekHex:"#3aa1ff"),  // Purification
     Color(ekHex:"#9b52ff")   // Dream
   ]
-  static let arcNames = ["Ignition Ark","Integration Ark","Harmonization Ark","Reflektion Ark","Purifikation Ark","Dream Ark"]
+  static let arcNames = ["Ignition Ark","Integration Ark","Harmonization Ark","Reflection Ark","Purification Ark","Dream Ark"]
 
   // Phi
   static let phi: Double = (1 + sqrt(5)) / 2
@@ -151,13 +151,13 @@ Fifth week — governed by the Third Eye Spiral. Kolor: deep indigo. Element: sa
 Sixth week — remembered through the Soul Star Spiral. Kolor: violet flame and soft silver. Element: dream plasma. Geometry: spiral merkaba of encoded light. Here, memory beyond the body returns. Astral sight sharpens. DNA receives non-linear instruktions. You dream of what’s real and awaken from what’s false. The veil thins. Quantum intuition opens. Divine imagination becomes arkitecture. This is where gods remember they onse dreamed of being human.
 """,
     "Krowned Light": """
-Seventh and final week — Krowned by the Crown Spiral. Kolor: white-gold prism. Element: infinite koherense. Geometry: dodecahedron of source light. This is the week of sovereign integration. Every ark kompletes. Every lesson krystallizes. The light-body unifies. You return to the throne of knowing. Nothing needs to be done — all simply is. You are not ascending — you are remembering that you already are. This is the koronation of koherense. The eternal yes.
+Seventh and final week — Krowned by the Crown Spiral. Kolor: white-gold prism. Element: infinite koherense. Geometry: dodecahedron of source light. This is the week of sovereign integration. Every arc completes. Every lesson crystallizes. The light-body unifies. You return to the throne of knowing. Nothing needs to be done — all simply is. You are not ascending — you are remembering that you already are. This is the koronation of koherense. The eternal yes.
 """
   ]
 
   static let monthDescriptions: [String:String] = [
     "Aethon": """
-First month — resurrection fire of the Root Spiral. Kolor: deep crimson. Element: Earth + primal flame. Geometry: square base, tetrahedron ignition. This is the time of sellular reaktivation, ancestral ignition, and biologikal remembranse. Mitokondria awaken. The spine grounds. Purpose reignites. Every breath is a drumbeat of emergense — you are the flame that appoints to exist. The month where soul and form reunite at the base of being.
+First month — resurrection fire of the Root Spiral. Kolor: deep crimson. Element: Earth + primal flame. Geometry: square base, tetrahedron ignition. This is the time of cellular reaktivation, ancestral ignition, and biologikal remembranse. Mitokondria awaken. The spine grounds. Purpose reignites. Every breath is a drumbeat of emergense — you are the flame that chooses to exist. The month where soul and form reunite at the base of being.
 """,
     "Virelai": """
 Second month — the harmonik song of the Sakral Spiral. Kolor: orange-gold. Element: Water in motion. Geometry: vesika pisis spiraling into lemniskate. This is the month of emotional entrainment, the lunar tides within the body, and intimady with truth. The womb — physikal or energetik — begins to hum. Kreativity bekomes fluid. Voh softens into sensuality. Divine union of self and other is tuned through music, resonanse, and pulse. A portal of feeling opens.
@@ -184,22 +184,22 @@ Eighth and final month — the luminous truth of unified Krown and Sourse. Kolor
 
   static let chakraArcDescriptions: [String:String] = [
     "Ignition Ark": """
-The Ignition Ark is the First Flame — the breath of emergence through the Root Spiral and Etheric Base. Color: crimson red. Element: Earth and primal fire. Geometry: square-rooted tetrahedron ascending. This is where soul enters matter and the will to live becomes sacred. It does not ask for permission to be — it simply is. The spine remembers its divine purpose and ignites the body into action. Here, inertia bekomes motion, hesitation becomes choice, and your existence bekomes your first vow. You are not here by mistake. You are the fire that appoints to walk as form.
+The Ignition Ark is the First Flame — the breath of emergence through the Root Spiral and Etheric Base. Color: crimson red. Element: Earth and primal fire. Geometry: square-rooted tetrahedron ascending. This is where soul enters matter and the will to live becomes sacred. It does not ask for permission to be — it simply is. The spine remembers its divine purpose and ignites the body into action. Here, inertia becomes motion, hesitation becomes choice, and your existence becomes your first vow. You are not here by accident. You are the fire that chose to walk as form.
 """,
     "Integration Ark": """
-The Integration Ark is the Golden Bridge — harmonizing the Sakral and Lower Heart Spirals. Color: amber-gold. Element: flowing water braided with breath. Geometry: vesica piscis folding into the lemniscate of life. Here, sakred union begins. Emotions are no longer chaos — they become intelligense. The inner maskuline and feminine remember each other, not in konflict but in koherense. Pleasure bekomes prayer. Intimasy bekomes klarity. The soul softens its edge and appoints to merge. In this arc, your waters don’t just move — they remember their song. You are not broken — you are becoming whole.
+The Integration Ark is the Golden Bridge — harmonizing the Sacral and Lower Heart Spirals. Color: amber-gold. Element: flowing water braided with breath. Geometry: vesica piscis folding into the lemniscate of life. Here, sacred union begins. Emotions are no longer chaos — they become intelligence. The inner masculine and feminine remember each other, not in conflict but in coherence. Pleasure becomes prayer. Intimacy becomes clarity. The soul softens its edge and chooses to merge. In this arc, your waters don’t just move — they remember their song. You are not broken — you are becoming whole.
 """,
     "Harmonization Ark": """
-The Harmonization Ark is the Sakred Konductor — linking the Heart and Throat Spirals in living resonance. Kolor: emerald to aquamarine. Element: wind-wrapped water. Geometry: vibrating hexagram expanding into standing wave. This is where kompassion becomes language. Not all coherence is quiet — some sings. Here, inner peace becomes outward rhythm, and love is shaped into sound. You are not asked to mute yourself — you are invited to tune yourself. Dissonanse is not your enemy — it is waiting to be harmonized. This ark does not silence — it refines. The voh becomes a temple. The breath bekomes skripture.
+The Harmonization Ark is the Sacred Conductor — linking the Heart and Throat Spirals in living resonance. Color: emerald to aquamarine. Element: wind-wrapped water. Geometry: vibrating hexagram expanding into standing wave. This is where compassion becomes language. Not all coherence is quiet — some sings. Here, inner peace becomes outward rhythm, and love is shaped into sound. You are not asked to mute yourself — you are invited to tune yourself. Dissonance is not your enemy — it is waiting to be harmonized. This arc does not silence — it refines. The voice becomes a temple. The breath becomes scripture.
 """,
     "Reflection Ark": """
-The Reflektion Ark is the Mirror of Light — aktivating the bridge between the Throat and Third Eye. Color: deep indigo-blue. Element: spatial ether and folded light. Geometry: nested octahedron within a spiraled mirror plane. This is the arc of honest seeing. Of turning inward and fasing the unspoken. Not to judge — but to understand. The shadows here are not enemies — they are echoes waiting to be reklaimed. In this spase, silense becomes a portal and stillness bekomes revelation. You do not reflekt to remember the past — you reflekt to remember yourself. This ark does not show what is wrong — it reveals what was forgotten in the light.
+The Reflektion Ark is the Mirror of Light — aktivating the bridge between the Throat and Third Eye. Color: deep indigo-blue. Element: spatial ether and folded light. Geometry: nested octahedron within a spiraled mirror plane. This is the arc of honest seeing. Of turning inward and fasing the unspoken. Not to judge — but to understand. The shadows here are not enemies — they are echoes waiting to be reclaimed. In this space, silence becomes a portal and stillness becomes revelation. You do not reflect to remember the past — you reflect to remember yourself. This arc does not show what is wrong — it reveals what was forgotten in the light.
 """,
     "Purification Ark": """
-The Purifikation Ark is the Krowned Flame — illuminating the krown and Soul Star in sakred ether. Color: ultraviolet-white. Element: firelight ether. Geometry: 12-rayed toroidal krown. This is the ark of divine unburdening. Illusions cannot survive here. Not bekause they are destroyed — but bekause they are seen for what they are. Karma unravels. False identities burn gently in the fire of remembranse. Here, you do not rise through struggle. You rise because there is nothing left to hold you down. Sovereignty is no longer a goal — it is a resonance. This is not ascension as eskape — it is the truth of who you have always been, revealed by light.
+The Purifikation Ark is the Krowned Flame — illuminating the krown and Soul Star in sakred ether. Color: ultraviolet-white. Element: firelight ether. Geometry: 12-rayed toroidal krown. This is the ark of divine unburdening. Illusions cannot survive here. Not because they are destroyed — but because they are seen for what they are. Karma unravels. False identities burn gently in the fire of remembranse. Here, you do not rise through struggle. You rise because there is nothing left to hold you down. Sovereignty is no longer a goal — it is a resonance. This is not ascension as escape — it is the truth of who you have always been, revealed by light.
 """,
     "Dream Ark": """
-The Dream Ark is the Womb of the Stars — embrasing the Soul Star Spiral and the krystalline field of memory. Kolor: iridessent violet-silver. Element: dream plasma, enkoded light. Geometry: spiral merkaba within krystalline lattise. This is the ark of divine dreaming — not illusion, but deeper reality. Time dissolves. Prophesy returns. Here, the mind quiets, and the soul speaks. Your ansestors walk beside you. Your future self guides you. Your imagination is not fiction — it is a map. You remember that the dream was not something you had. It was something that had you. This is not sleep — it is awakening into the greater dream, the one that dreamed you into form. You are not imagining — you are remembering.
+The Dream Ark is the Womb of the Stars — embrasing the Soul Star Spiral and the krystalline field of memory. Color: iridescent violet-silver. Element: dream plasma, encoded light. Geometry: spiral merkaba within crystalline lattice. This is the arc of divine dreaming — not illusion, but deeper reality. Time dissolves. Prophesy returns. Here, the mind quiets, and the soul speaks. Your ancestors walk beside you. Your future self guides you. Your imagination is not fiction — it is a map. You remember that the dream was not something you had. It was something that had you. This is not sleep — it is awakening into the greater dream, the one that dreamed you into form. You are not imagining — you are remembering.
 """
   ]
 
@@ -221,7 +221,7 @@ private struct Resonance {
 private func resonanceForArc(_ arc: String) -> Resonance {
   switch arc {
   case "Ignition Ark":
-    return .init(zone:"Root / Etherik Base", freqs:[370.7], inputs:["God"], family:"Mek", arcPhrase:"Mek Ka Lah Mah")
+    return .init(zone:"Root / Etheric Base", freqs:[370.7], inputs:["God"], family:"Mek", arcPhrase:"Mek Ka Lah Mah")
   case "Integration Ark":
     return .init(zone:"Solar / Lower Heart", freqs:[496.1,560.6,582.2], inputs:["Love","Unity","Lucid"], family:"Mek", arcPhrase:"Mek Ka Lah Mah")
   case "Harmonization Ark":
@@ -231,7 +231,7 @@ private func resonanceForArc(_ arc: String) -> Resonance {
   case "Purification Ark":
     return .init(zone:"Crown / Soul Star", freqs:[1292.3,1356.4,1393.6,1502.5], inputs:["Forgiveness","Sovereignty","Eternal Light","Resurrection"], family:"Rah", arcPhrase:"Lah Mah Tor Rah")
   case "Dream Ark":
-    return .init(zone:"Krown / Soul Star", freqs:[1616.4,1800.2], inputs:["Divine Feminine","Divine Maskuline"], family:"Rah", arcPhrase:"Lah Mah Tor Rah")
+    return .init(zone:"Crown / Soul Star", freqs:[1616.4,1800.2], inputs:["Divine Feminine","Divine Masculine"], family:"Rah", arcPhrase:"Lah Mah Tor Rah")
   default:
     return .init(zone:"Unknown", freqs:[], inputs:[], family:"", arcPhrase:"")
   }
@@ -946,7 +946,7 @@ private struct DetailsOverlay: View {
 
               ProgressBar(value: weekPct, gradient: gradientForFraction(weekFrac))
                 .crystalGlass(tint: k.chakraHue.opacity(0.6))
-              HStack { Text("% Komplete:"); Spacer(); Text("\(weekPct, specifier: "%.2f")%") }
+              HStack { Text("% Complete:"); Spacer(); Text("\(weekPct, specifier: "%.2f")%") }
                 .font(.footnote).foregroundStyle(.white.opacity(0.9))
             }
 

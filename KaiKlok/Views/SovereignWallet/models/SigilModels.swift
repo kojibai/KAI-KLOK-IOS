@@ -2,10 +2,15 @@
 //  SigilModels.swift
 //  KaiKlok
 //
+//  Created by BJ Klock on 10/16/25.
+//
+
+//
+//  SigilModels.swift
+//  KaiKlok
+//
 //  Shared Codable models & small constants used by Verifier/Stamper.
 //  Keep this logic-free; engines live under engines/SigilCore/*
-//
-//  Updated: 2025-10-31
 //
 
 import Foundation
@@ -27,8 +32,7 @@ public enum WVUiState: String {
 /// Lossless wrapper for “any JSON” (for ZK bundles, etc.)
 public struct WVCodableValue: Codable {
     public let value: Any
-
-    public init(_ v: Any) { self.value = v }
+    public init(_ v: Any) { value = v }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.singleValueContainer()
@@ -66,13 +70,6 @@ public struct WVSigilPayload: Codable {
     public let mime: String
     public let size: Int
     public let encoded: String // base64 (not url)
-
-    public init(name: String, mime: String, size: Int, encoded: String) {
-        self.name = name
-        self.mime = mime
-        self.size = size
-        self.encoded = encoded
-    }
 }
 
 public struct WVSigilTransfer: Codable {
@@ -85,24 +82,6 @@ public struct WVSigilTransfer: Codable {
     public var receiverSignature: String?
     public var receiverStamp: String?
     public var receiverKaiPulse: Int?
-
-    public init(
-        senderSignature: String,
-        senderStamp: String,
-        senderKaiPulse: Int,
-        payload: WVSigilPayload?,
-        receiverSignature: String? = nil,
-        receiverStamp: String? = nil,
-        receiverKaiPulse: Int? = nil
-    ) {
-        self.senderSignature = senderSignature
-        self.senderStamp = senderStamp
-        self.senderKaiPulse = senderKaiPulse
-        self.payload = payload
-        self.receiverSignature = receiverSignature
-        self.receiverStamp = receiverStamp
-        self.receiverKaiPulse = receiverKaiPulse
-    }
 }
 
 public struct WVZkHashRef: Codable {
@@ -112,22 +91,6 @@ public struct WVZkHashRef: Codable {
     public var proofHash: String?
     public var vkeyHash: String?
     public var verified: Bool?
-
-    public init(
-        scheme: String,
-        curve: String,
-        publicHash: String? = nil,
-        proofHash: String? = nil,
-        vkeyHash: String? = nil,
-        verified: Bool? = nil
-    ) {
-        self.scheme = scheme
-        self.curve = curve
-        self.publicHash = publicHash
-        self.proofHash = proofHash
-        self.vkeyHash = vkeyHash
-        self.verified = verified
-    }
 }
 
 public struct WVZkBundle: Codable {
@@ -136,20 +99,6 @@ public struct WVZkBundle: Codable {
     public var proof: WVCodableValue?
     public var publicSignals: WVCodableValue?
     public var vkey: WVCodableValue?
-
-    public init(
-        scheme: String,
-        curve: String,
-        proof: WVCodableValue? = nil,
-        publicSignals: WVCodableValue? = nil,
-        vkey: WVCodableValue? = nil
-    ) {
-        self.scheme = scheme
-        self.curve = curve
-        self.proof = proof
-        self.publicSignals = publicSignals
-        self.vkey = vkey
-    }
 }
 
 /// Hardened lineage (v14)
@@ -172,62 +121,11 @@ public struct WVHardenedTransferV14: Codable {
     public var zkReceive: WVZkHashRef?
     public var zkSendBundle: WVZkBundle?
     public var zkReceiveBundle: WVZkBundle?
-
-    public init(
-        previousHeadRoot: String,
-        senderPubKey: String,
-        senderSig: String,
-        senderKaiPulse: Int,
-        nonce: String,
-        transferLeafHashSend: String,
-        receiverPubKey: String? = nil,
-        receiverSig: String? = nil,
-        receiverKaiPulse: Int? = nil,
-        transferLeafHashReceive: String? = nil,
-        zkSend: WVZkHashRef? = nil,
-        zkReceive: WVZkHashRef? = nil,
-        zkSendBundle: WVZkBundle? = nil,
-        zkReceiveBundle: WVZkBundle? = nil
-    ) {
-        self.previousHeadRoot = previousHeadRoot
-        self.senderPubKey = senderPubKey
-        self.senderSig = senderSig
-        self.senderKaiPulse = senderKaiPulse
-        self.nonce = nonce
-        self.transferLeafHashSend = transferLeafHashSend
-        self.receiverPubKey = receiverPubKey
-        self.receiverSig = receiverSig
-        self.receiverKaiPulse = receiverKaiPulse
-        self.transferLeafHashReceive = transferLeafHashReceive
-        self.zkSend = zkSend
-        self.zkReceive = zkReceive
-        self.zkSendBundle = zkSendBundle
-        self.zkReceiveBundle = zkReceiveBundle
-    }
 }
 
 public struct WVSegmentHead: Codable {
     public var root: String
     public var count: Int
-
-    public init(root: String, count: Int) {
-        self.root = root
-        self.count = count
-    }
-}
-
-// MARK: - Send-lock (for derivative/child links)
-
-public struct WVSigilSendLock: Codable {
-    public var nonce: String
-    public var used: Bool
-    public var usedPulse: Int?
-
-    public init(nonce: String, used: Bool, usedPulse: Int? = nil) {
-        self.nonce = nonce
-        self.used = used
-        self.usedPulse = usedPulse
-    }
 }
 
 public struct WVSigilMetadata: Codable {
@@ -269,62 +167,6 @@ public struct WVSigilMetadata: Codable {
     // canonical hash (optional)
     public var canonicalHash: String?
 
-    // derivative context
-    public var childOfHash: String?
-    public var sendLock: WVSigilSendLock?
-
-    public init(
-        pulse: Int? = nil,
-        beat: Int? = nil,
-        stepIndex: Int? = nil,
-        chakraDay: String? = nil,
-        kaiSignature: String? = nil,
-        userPhiKey: String? = nil,
-        creatorPublicKey: String? = nil,
-        transferNonce: String? = nil,
-        transfers: [WVSigilTransfer]? = nil,
-        hardenedTransfers: [WVHardenedTransferV14]? = nil,
-        segmentSize: Int? = nil,
-        segments: [WVSegmentHead]? = nil,
-        segmentsMerkleRoot: String? = nil,
-        cumulativeTransfers: Int? = nil,
-        transfersWindowRoot: String? = nil,
-        transfersWindowRootV14: String? = nil,
-        frequencyHz: Double? = nil,
-        chakraGate: String? = nil,
-        context: String? = nil,
-        type: String? = nil,
-        zkVerifyingKey: WVCodableValue? = nil,
-        canonicalHash: String? = nil,
-        childOfHash: String? = nil,
-        sendLock: WVSigilSendLock? = nil
-    ) {
-        self.pulse = pulse
-        self.beat = beat
-        self.stepIndex = stepIndex
-        self.chakraDay = chakraDay
-        self.kaiSignature = kaiSignature
-        self.userPhiKey = userPhiKey
-        self.creatorPublicKey = creatorPublicKey
-        self.transferNonce = transferNonce
-        self.transfers = transfers
-        self.hardenedTransfers = hardenedTransfers
-        self.segmentSize = segmentSize
-        self.segments = segments
-        self.segmentsMerkleRoot = segmentsMerkleRoot
-        self.cumulativeTransfers = cumulativeTransfers
-        self.transfersWindowRoot = transfersWindowRoot
-        self.transfersWindowRootV14 = transfersWindowRootV14
-        self.frequencyHz = frequencyHz
-        self.chakraGate = chakraGate
-        self.context = context
-        self.type = type
-        self.zkVerifyingKey = zkVerifyingKey
-        self.canonicalHash = canonicalHash
-        self.childOfHash = childOfHash
-        self.sendLock = sendLock
-    }
-
     public enum CodingKeys: String, CodingKey {
         case pulse, beat, stepIndex, chakraDay
         case kaiSignature, userPhiKey, creatorPublicKey
@@ -332,10 +174,10 @@ public struct WVSigilMetadata: Codable {
         case segmentSize, segments, segmentsMerkleRoot, cumulativeTransfers
         case transfersWindowRoot, transfersWindowRootV14
         case frequencyHz, chakraGate
-        case context, type
+        case context = "@context"
+        case type
         case zkVerifyingKey
         case canonicalHash
-        case childOfHash, sendLock
     }
 }
 
